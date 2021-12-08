@@ -1,0 +1,29 @@
+name: Publish NPM Package
+inputs:
+  node-version:
+    required: true
+  npm-token:
+    required: true
+  checkout-lfs:
+    description: "if true, run git lfs pull"
+    required: false
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout LFS objects
+      if: inputs.checkout-lfs
+      run: git lfs pull
+    - name: Setup NodeJS
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: https://registry.npmjs.org
+    - name: Install
+      run: npm install
+    - name: Publish
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
+
