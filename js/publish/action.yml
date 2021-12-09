@@ -39,7 +39,7 @@ runs:
     - name: Publish Github Release
       shell: bash -l {0}
       run: |
-        git remote set-url origin https://${{ inputs.github-token }}@${{ github.repository }}
+        git remote set-url origin https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
         VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
         git tag ${VERSION} && git push --tags
 
