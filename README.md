@@ -29,8 +29,8 @@ jobs:
 
 ```
 
-where the workflow in the Periodic Table repository uses the composite
-action `js/test/action.yml` from the `main` branch in this repository.
+where the workflow in the Periodic Table repository uses the [action](js/test/action.yml)
+from the `main` branch in this repository.
 
 ### Notes:
 
