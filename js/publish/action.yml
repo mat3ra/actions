@@ -1,13 +1,20 @@
-name: Publish NPM Package
+name: Publish NPM Package and Git Release
 inputs:
   node-version:
-    required: true
-  npm-token:
-    required: true
+    description: "Version of Node to use"
+    required: false
   checkout-lfs:
     description: "if true, run git lfs pull"
     required: false
     default: false
+  npm-token:
+    description: "grants access to publish releases to NPM"
+    required: true
+    default: ""
+  github-token:
+    description: "grants acces to publish releases to github"
+    required: true 
+    default: ""
 
 runs:
   using: "composite"
@@ -17,16 +24,22 @@ runs:
       shell: bash -l {0}
       run: git lfs pull
     - name: Setup NodeJS
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.node-version }}
         registry-url: https://registry.npmjs.org
     - name: Install
       shell: bash -l {0}
       run: npm install
-    - name: Publish
+    - name: Publish NPM Release
       shell: bash -l {0}
-      run: npm publish --access public
+      run: npm publish --access public || echo "this version has already been published"
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
+    - name: Publish Github Release
+      shell: bash -l {0}
+      run: |
+        git remote set-url origin https://${{ inputs.github-token }}@${{ github.repository }}
+        VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+        git tag ${VERSION} && git push --tags
 
