@@ -31,6 +31,9 @@ runs:
     - name: Install
       shell: bash -l {0}
       run: npm install
+    - name: Verify tests
+      shell: bash -l {0}
+      run: npm test
     - name: Publish NPM Release
       shell: bash -l {0}
       run: npm publish --access public || echo "this version has already been published"
