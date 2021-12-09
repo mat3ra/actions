@@ -28,10 +28,4 @@ runs:
     - name: Test
       shell: bash -l {0}
       run: npm test
-    - name: Debug
-      shell: bash -l {0}
-      run: |
-        echo ${{ github.repository }}
-        VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
-        echo parsed version "$VERSION"
 
