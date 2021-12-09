@@ -29,7 +29,7 @@ jobs:
 
 ```
 
-where the workflow in the Periodic Table repository uses the [action](js/test/action.yml)
+where the workflow in the Periodic Table repository uses the [js/test/action](js/test/action.yml)
 from the `main` branch in this repository.
 
 ### Notes:
