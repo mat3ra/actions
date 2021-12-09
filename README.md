@@ -10,9 +10,9 @@ them.
 
 ### Usage
 
-These actions are not standalone, and are intended to be used in other actions.
-For example, as used in [Periodic Table](https://github.com/Exabyte-io/periodic-table.js), a
-"consumer" action would look like:
+These actions are not standalone, and are intended to be used in other workflows.
+For example, as used in [Periodic Table](https://github.com/Exabyte-io/periodic-table.js),
+a workflow using one of these actions might look like:
 
 ```yaml
 
@@ -29,15 +29,11 @@ jobs:
 
 ```
 
-where the github action in the Periodic Table repository uses the composite
+where the workflow in the Periodic Table repository uses the composite
 action `js/test/action.yml` from the `main` branch in this repository.
 
 ### Notes:
 
- - Calling actions must still use `actions/checkout@v2` to check out their repositories.
-
-
-
-
+ - Calling workflows must still use `actions/checkout@v2` before these actions.
 
 
