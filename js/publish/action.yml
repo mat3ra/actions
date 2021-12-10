@@ -37,9 +37,15 @@ runs:
     - name: Publish release to NPM and tag & release to Github
       shell: bash -l {0}
       run: |
-          # NPM
-          # patch bumps package.json version and commits it, returning the new version
-          VERSION=$(npm version patch)
+          # Determine which npm version command to run
+          DATE=$(date +%Y.%m.%d)
+          VERSIONS=$(npm show @exabyte-io/${{ github.repository }} versions)
+          if [[ "${VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
+              cmd="npm version ${DATE}-0"              # date's first release
+          else
+              cmd="npm version prerelease"; fi         # pre-release covers it
+          # create new version and publish
+          VERSION=$(${cmd})
           npm publish
           # Github
           REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
