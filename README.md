@@ -35,5 +35,16 @@ from the `main` branch in this repository.
 ### Notes:
 
  - Calling workflows must still use `actions/checkout@v2` before these actions.
+ - Workflows that interact directly with Github (like publish actions) avoid
+   infinite recursion with downstream workflows triggered on `[push]` because events
+   triggered by access tokens do not interact with Github actions. See
+   [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token) 
+   for details.
 
+### To Do
 
+The `js/publish` action will automatically patch version bump when publishing to NPM.
+It will also push the new version tag and release to Github.
+Future work could benefit from downstream repositories that adhere to the use of
+commit tools like `commitlint` or `commitizen` and `semantic-release` to determine automatically
+from commit messages when to do major/minor version bumps as well as auto-generate release notes.
