@@ -1,3 +1,50 @@
-# actions
+# Actions
 
-Github actions for CICD
+Composite github actions for CICD workflows. These actions are meant to 
+reduce the repetitive logic in individual code repositories by providing
+functionality that downstream repos can reuse. Actions are organized
+by `domain/purpose/action` where `domain` is the programming language
+and `purpose` is the intent of the action. By default, actions take the
+name `action.yml`, hence the use of a directory structure to differentiate
+them.
+
+### Usage
+
+These actions are not standalone, and are intended to be used in other workflows.
+For example, as used in [Periodic Table](https://github.com/Exabyte-io/periodic-table.js),
+a workflow using one of these actions might look like:
+
+```yaml
+
+...
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: Exabyte-io/actions/js/test@main
+
+...
+
+```
+
+where the workflow in the Periodic Table repository uses the [js/test/action](js/test/action.yml)
+from the `main` branch in this repository.
+
+### Notes:
+
+ - Calling workflows must still use `actions/checkout@v2` before these actions.
+ - Workflows that interact directly with Github (like publish actions) avoid
+   infinite recursion with downstream workflows triggered on `[push]` because events
+   triggered by access tokens do not interact with Github actions. See
+   [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token) 
+   for details.
+
+### To Do
+
+The `js/publish` action will automatically patch version bump when publishing to NPM.
+It will also push the new version tag and release to Github.
+Future work could benefit from downstream repositories that adhere to the use of
+commit tools like `commitlint` or `commitizen` and `semantic-release` to determine automatically
+from commit messages when to do major/minor version bumps as well as auto-generate release notes.

@@ -1,0 +1,65 @@
+name: Publish NPM Package and Git Release
+inputs:
+  node-version:
+    description: "Version of Node to use"
+    required: false
+  checkout-lfs:
+    description: "if true, run git lfs pull"
+    required: false
+    default: false
+  npm-token:
+    description: "grants access to publish releases to NPM"
+    required: true
+    default: ""
+  github-token:
+    description: "grants acces to publish releases to github"
+    required: true 
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout LFS objects
+      if: inputs.checkout-lfs
+      shell: bash -l {0}
+      run: git lfs pull
+    - name: Setup NodeJS
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: https://registry.npmjs.org
+    - name: Install
+      shell: bash -l {0}
+      run: npm install
+    - name: Verify tests
+      shell: bash -l {0}
+      run: npm test
+    - name: Publish release to NPM and tag & release to Github
+      shell: bash -l {0}
+      run: |
+          # Determine which npm version command to run
+          DATE=$(date +%Y.%m.%d)
+          VERSIONS=$(npm show @exabyte-io/${{ github.repository }} versions)
+          if [[ "${VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
+              cmd="npm version ${DATE}-0"              # date's first release
+          else
+              cmd="npm version prerelease"; fi         # pre-release covers it
+          # create new version and publish
+          VERSION=$(${cmd})
+          npm publish
+          # Github
+          REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
+          RELEASE_URL=https://api.github.com/repos/Exabyte-io/${{ github.repository }}/releases
+          git remote set-url origin ${URL}
+          # re-sync branch with npm's commit
+          git push origin ${{ github.ref_name }}
+          # push the new version tag
+          git push origin ${VERSION}
+          # create the release
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ inputs.github-token }}" \
+            ${RELEASE_URL} -d '{"tag_name": "${VERSION}"}'
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
+
