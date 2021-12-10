@@ -37,7 +37,7 @@ runs:
     - name: Publish release to NPM and tag & release to Github
       shell: bash -l {0}
       run: |
-          # Github configuration
+          # git configuration must come before npm commands
           REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
           RELEASE_URL=https://api.github.com/repos/Exabyte-io/${{ github.repository }}/releases
           git remote set-url origin ${REPO_URL}
