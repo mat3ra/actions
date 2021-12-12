@@ -39,7 +39,7 @@ runs:
       run: |
           # git configuration must come before npm commands
           REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
-          RELEASE_URL=https://api.github.com/repos/Exabyte-io/${{ github.repository }}/releases
+          RELEASE_URL=https://api.github.com/repos/${{ github.repository }}/releases
           git remote set-url origin ${REPO_URL}
           git config user.name "exabyte-io-bot"
           git config user.email "info@exabyte.io"
@@ -54,14 +54,18 @@ runs:
           VERSION=$(${cmd})
           npm publish
           # re-sync branch with npm's commit
-          git push origin ${{ github.ref_name }}
+          git push --force origin ${{ github.ref_name }}
           # push the new version tag
           git push origin ${VERSION}
           # create the release
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer ${{ inputs.github-token }}" \
-            ${RELEASE_URL} -d '{"tag_name": "${VERSION}"}'
+            ${RELEASE_URL} -d '{
+              "tag_name": "${VERSION}",
+              "name": "Release ${VERSION}",
+              "body": "This is an automated release ${VERSION} created by exabyte-io-bot."
+            }'
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
 
