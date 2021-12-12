@@ -56,3 +56,5 @@ It will also push the new version tag and release to Github.
 Future work could benefit from downstream repositories that adhere to the use of
 commit tools like `commitlint` or `commitizen` and `semantic-release` to determine automatically
 from commit messages when to do major/minor version bumps as well as auto-generate release notes.
+
+The exabyte bot should be configured to be the only user that can force push to a matching branch.
