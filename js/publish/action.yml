@@ -35,10 +35,18 @@ runs:
       shell: bash -l {0}
       run: npm test
     - name: Configure repository
-      id: configure-repo
       uses: Exabyte-io/actions/git/config@main
       with:
         github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+
+    - name: Get NPM Repo
+      id: npm-repo
+      shell: bash -l {0}
+      run: |
+        GIT_REPO=${{ github.repository }}
+        # git is Exabyte-io but npm is exabyte-io
+        NPM_REPO=$(echo ${GIT_REPO} | tr '[:upper:]' '[:lower:]')
+        echo "::set-output name=npm-repo::$(echo ${NPM_REPO})"
 
     - name: Publish release to NPM
       shell: bash -l {0}
@@ -46,13 +54,14 @@ runs:
       run: |
           # Determine which npm version command to run based
           # on already published packages and today's date
-          NPM_PKG=${{ steps.configure-repo.outputs.npm-repo }}
+          NPM_PKG=${{ steps.npm-repo.outputs.npm-repo }}
           VERSIONS=$(npm show @${NPM_PKG} versions)
           DATE=$(date +%Y.%m.%d)
           if [[ "${VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
               cmd="npm version ${DATE}-0"              # date's first release
           else
               cmd="npm version prerelease"; fi         # pre-release covers it
+          echo "npm pkg repository: ${NPM_PKG}"
           echo "published versions: ${VERSIONS}"
           echo "npm command to run: ${cmd}"
           # create new version and publish
