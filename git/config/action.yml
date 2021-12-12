@@ -1,0 +1,34 @@
+name: Configure Git Repository
+inputs:
+  github-token:
+    description: "grants access to github repository"
+    required: true
+    default: ""
+outputs:
+  npm-repo:
+    description: "Lowercase github repository"
+    value: ${{ steps.configure-npm.outputs.npmRepo }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get NPM Repo
+      id: configure-npm
+      shell: bash -l {0}
+      run: |
+        GIT_REPO=${{ github.repository }}
+        # git is Exabyte-io but npm is exabyte-io
+        NPM_REPO=$(echo ${GIT_REPO} | tr '[:upper:]' '[:lower:]')
+        echo "::set-output name=npmRepo::$(echo ${NPM_REPO})"
+    - name: Get Github URLs
+      id: configure-git
+      shell: bash -l {0}
+      run: |
+        GIT_REPO=${{ github.repository }}
+        REPO_URL=https://${{ inputs.github-token }}@github.com/${GIT_REPO}.git
+        # configure git repository for downstream interaction
+        git remote set-url origin ${REPO_URL}
+        git config user.name "exabyte-io-bot"
+        git config user.email "info@exabyte.io"
+        git checkout ${{ github.ref_name }}
+
