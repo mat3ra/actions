@@ -37,7 +37,7 @@ runs:
     - name: Configure repository
       uses: Exabyte-io/actions/git/config@main
       with:
-        github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
 
     - name: Get NPM Repo Name
       id: npm-repo
@@ -76,7 +76,7 @@ runs:
     - name: Publish Tag & Release to Github
       uses: Exabyte-io/actions/git/release@main
       with:
-        github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.npm-publish.outputs.published-version }}
         sync-branch: "true"
 
