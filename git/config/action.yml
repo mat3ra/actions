@@ -1,0 +1,21 @@
+name: Configure Git Repository
+inputs:
+  github-token:
+    description: "grants access to github repository"
+    required: true
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set Github Config
+      id: configure-git
+      shell: bash -l {0}
+      run: |
+        # configure git repository for downstream interaction
+        REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
+        git remote set-url origin ${REPO_URL}
+        git config user.name "exabyte-io-bot"
+        git config user.email "info@exabyte.io"
+        git checkout ${{ github.ref_name }}
+

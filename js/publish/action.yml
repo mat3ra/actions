@@ -34,38 +34,49 @@ runs:
     - name: Verify tests
       shell: bash -l {0}
       run: npm test
-    - name: Publish release to NPM and tag & release to Github
+    - name: Configure repository
+      uses: Exabyte-io/actions/git/config@main
+      with:
+        github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+
+    - name: Get NPM Repo Name
+      id: npm-repo
       shell: bash -l {0}
       run: |
-          # git configuration must come before npm commands
-          REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
-          RELEASE_URL=https://api.github.com/repos/${{ github.repository }}/releases
-          git remote set-url origin ${REPO_URL}
-          git config user.name "exabyte-io-bot"
-          git config user.email "info@exabyte.io"
-          # Determine which npm version command to run
+        GITHUB_REPOSITORY_PATH=${{ github.repository }}
+        # github organization name is Exabyte-io but npm organization name is exabyte-io
+        NPM_REPOSITORY_PATH=$(echo ${GITHUB_REPOSITORY_PATH} | tr '[:upper:]' '[:lower:]')
+        echo "::set-output name=npm-repository-path::$(echo ${NPM_REPOSITORY_PATH})"
+
+    - name: Publish release to NPM
+      shell: bash -l {0}
+      id: npm-publish
+      run: |
+          # Determine which npm version command to run based
+          # on already published packages and today's date
+          NPM_REPOSITORY_PATH=${{ steps.npm-repo.outputs.npm-repository-path }}
+          NPM_VERSIONS=$(npm show @${NPM_REPOSITORY_PATH} versions)
           DATE=$(date +%Y.%m.%d)
-          VERSIONS=$(npm show @exabyte-io/${{ github.repository }} versions)
-          if [[ "${VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
-              cmd="npm version ${DATE}-0"              # date's first release
+          if [[ "${NPM_VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
+              cmd="npm version ${DATE}-0"                  # date's first release
           else
-              cmd="npm version prerelease"; fi         # pre-release covers it
+              cmd="npm version prerelease"; fi             # pre-release covers it
+          echo "npm pkg repository: ${NPM_REPOSITORY_PATH}"
+          echo "published versions: ${NPM_VERSIONS}"
+          echo "npm command to run: ${cmd}"
           # create new version and publish
-          VERSION=$(${cmd})
+          # Note: this cmd creates a new commit on the branch
+          # which is why we want to sync-branch in the next step
+          PUBLISHED_VERSION=$(${cmd})
+          echo "::set-output name=published-version::$(echo ${PUBLISHED_VERSION})"
           npm publish
-          # re-sync branch with npm's commit
-          git push --force origin ${{ github.ref_name }}
-          # push the new version tag
-          git push origin ${VERSION}
-          # create the release
-          curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${{ inputs.github-token }}" \
-            ${RELEASE_URL} -d '{
-              "tag_name": "${VERSION}",
-              "name": "Release ${VERSION}",
-              "body": "This is an automated release ${VERSION} created by exabyte-io-bot."
-            }'
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
+
+    - name: Publish Tag & Release to Github
+      uses: Exabyte-io/actions/git/release@main
+      with:
+        github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+        tag-name: ${{ steps.npm-publish.outputs.published-version }}
+        sync-branch: "true"
 
