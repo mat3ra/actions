@@ -22,15 +22,23 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: Exabyte-io/actions/js/test@main
+      - uses: actions/checkout@v2  # checks out downstream repository
+      - uses: actions/checkout@v2  # checks out actions repository
+        with:
+          repository: Exabyte-io/actions
+          token: ${{ secrets.TOKEN }}
+          path: actions
+
+      - uses: ./actions/js/test
 
 ...
 
 ```
 
 where the workflow in the Periodic Table repository uses the [js/test/action](js/test/action.yml)
-from the `main` branch in this repository.
+from the `main` branch in this repository. In the example, the `actions` repository is cloned into
+a relative directory called `actions`. Actions which refer to other actions in this repository
+assume this convention and they should be referred to locally as `./actions/.../...`.
 
 ### Notes:
 
