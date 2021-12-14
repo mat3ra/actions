@@ -48,6 +48,8 @@ assume this convention and they should be referred to locally as `./actions/.../
    triggered by access tokens do not interact with Github actions. See
    [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token) 
    for details.
+ - `js/publish/action.yml` will automatically version bump when publishing releases
+   to both NPM and Github. It follows a date-based prerelease convention.
  - **Important** In order for the "main" branch to be kept in-sync with the commits
    that may happen during publication, the downstream repository must have
    `Allow force pushes` enabled in the `Branch protection rule` for the branch to be
@@ -62,7 +64,7 @@ assume this convention and they should be referred to locally as `./actions/.../
 The `js/publish` action will automatically patch version bump when publishing to NPM.
 It will also push the new version tag and release to Github.
 Future work could benefit from downstream repositories that adhere to the use of
-commit tools like `commitlint` or `commitizen` and `semantic-release` to determine automatically
-from commit messages when to do major/minor version bumps as well as auto-generate release notes.
+commit tools like `commitlint` or `commitizen` and `semantic-release` to fill in details
+such as release notes.
 
 The exabyte bot should be configured to be the only user that can force push to a matching branch.
