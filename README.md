@@ -43,6 +43,8 @@ assume this convention and they should be referred to locally as `./actions/.../
 ### Notes:
 
  - Calling workflows must still use `actions/checkout@v2` before these actions.
+ - Expression evaluation can be tricky in Github actions. Please see the caveats about
+   [Expressions](https://docs.github.com/en/actions/learn-github-actions/expressions#literals).
  - Workflows that interact directly with Github (like publish actions) avoid
    infinite recursion with downstream workflows triggered on `[push]` because events
    triggered by access tokens do not interact with Github actions. See
