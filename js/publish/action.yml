@@ -35,7 +35,7 @@ runs:
       shell: bash -l {0}
       run: npm test
     - name: Configure repository
-      uses: Exabyte-io/actions/git/config@main
+      uses: ./actions/git/config
       with:
         github-token: ${{ inputs.github-token }}
 
@@ -74,7 +74,7 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
 
     - name: Publish Tag & Release to Github
-      uses: Exabyte-io/actions/git/release@main
+      uses: ./actions/git/release
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.npm-publish.outputs.published-version }}
