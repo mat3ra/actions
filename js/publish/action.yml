@@ -70,7 +70,6 @@ runs:
           # which is why we want to sync-branch in the next step
           PUBLISHED_VERSION=$(${cmd})
           echo "::set-output name=published-version::$(echo ${PUBLISHED_VERSION})"
-          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
           npm publish
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
