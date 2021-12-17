@@ -27,7 +27,8 @@ runs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.node-version }}
-        registry-url: https://registry.npmjs.org
+        registry-url: 'https://registry.npmjs.org'
+        always-auth: true
     - name: Install
       shell: bash -l {0}
       run: npm install
