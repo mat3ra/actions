@@ -20,7 +20,7 @@ runs:
     - name: Sync Branch
       if: inputs.sync-branch == 'true'
       shell: bash -l {0}
-      run: git push origin ${{ github.ref_name }}
+      run: git push --force origin ${{ github.ref_name }}
 
     - name: Push Tag To Remote
       shell: bash -l {0}
