@@ -70,7 +70,7 @@ runs:
           # which is why we want to sync-branch in the next step
           PUBLISHED_VERSION=$(${cmd})
           echo "::set-output name=published-version::$(echo ${PUBLISHED_VERSION})"
-          # npm publish
+          npm publish
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
 
