@@ -3,10 +3,6 @@ inputs:
   node-version:
     description: "Version of Node to use"
     required: false
-  checkout-lfs:
-    description: "if true, run git lfs pull"
-    required: false
-    default: false
   npm-token:
     description: "grants access to publish releases to NPM"
     required: true
@@ -15,14 +11,14 @@ inputs:
     description: "grants acces to publish releases to github"
     required: true 
     default: ""
+  verify-tests:
+    description: "if true, run npm test"
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
   steps:
-    - name: Checkout LFS objects
-      if: inputs.checkout-lfs
-      shell: bash -l {0}
-      run: git lfs pull
     - name: Setup NodeJS
       uses: actions/setup-node@v2
       with:
@@ -33,6 +29,7 @@ runs:
       shell: bash -l {0}
       run: npm install
     - name: Verify tests
+      if: inputs.verify-tests == 'true'
       shell: bash -l {0}
       run: npm test
     - name: Configure repository
