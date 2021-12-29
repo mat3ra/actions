@@ -30,5 +30,5 @@ runs:
       shell: bash -l {0}
       run: |
           NOTES="Release ${{ inputs.tag-name }} created by exabyte-io-bot"
-          gh release create ${{ inputs.tag-name }} --notes "${NOTES}" --prerelease
+          gh release create ${{ inputs.tag-name }} --notes "${NOTES}"
 
