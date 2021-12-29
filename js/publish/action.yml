@@ -8,7 +8,7 @@ inputs:
     required: true
     default: ""
   github-token:
-    description: "grants acces to publish releases to github"
+    description: "grants access to publish releases to github"
     required: true 
     default: ""
   verify-tests:
@@ -76,5 +76,5 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.npm-publish.outputs.published-version }}
-        sync-branch: "true"
+        sync-branch: 'true'
 
