@@ -1,7 +1,10 @@
-name: Publish Python Package
+name: Publish Git Release and Python Package
 inputs:
   python-version:
     description: "Version of Python to use"
+    required: true
+  github-token:
+    description: "Grants access to publish releases to github"
     required: true
   pypi-username:
     description: "Username on PyPI"
@@ -13,6 +16,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Publish Tag & Release to Github
+      uses: ./actions/git/version
+      with:
+        github-token: ${{ inputs.github-token }}
     - name: Setup Python ${{ inputs.python-version }}
       uses: actions/setup-python@v2
       with:
