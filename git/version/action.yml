@@ -24,7 +24,8 @@ runs:
             OLD=$(echo ${LATEST} | cut -d- -f2)
             NEW=$((OLD + 1))
             TAG_NAME="${DATE}-${NEW}"; fi
-        echo "::set-output name=tag-name::$(echo ${TAG_NAME})
+        git tag ${TAG_NAME}
+        echo "::set-output name=tag-name::$(echo ${TAG_NAME})"
     - name: Create release
       uses: ./actions/git/release
       with:
