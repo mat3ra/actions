@@ -1,0 +1,33 @@
+name: Create New Version in Github
+inputs:
+  github-token:
+    description: "grants access to publish releases to github"
+    required: true
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure repository
+      uses: ./actions/git/config
+      with:
+        github-token: ${{ inputs.github-token }}
+    - name: Determine version tag
+      id: get-tag
+      shell: bash -l {0}
+      run: |
+        DATE=$(date +%Y.%m.%d)
+        LATEST=$(git describe --tags --abbrev=0)
+        if [[ "${LATEST}" != *"${DATE}"* ]]; then
+            TAG_NAME="${DATE}-0"
+        else
+            OLD=$(echo ${LATEST} | cut -d- -f2)
+            NEW=$((OLD + 1))
+            TAG_NAME="${DATE}-${NEW}"; fi
+        echo "::set-output name=tag-name::$(echo ${TAG_NAME})
+    - name: Create release
+      uses: ./actions/git/release
+      with:
+        tag-name: ${{ steps.get-tag.outputs.tag-name }}
+        github-token: ${{ inputs.github-token }}
+        sync-branch: 'false'
