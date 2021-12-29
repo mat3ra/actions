@@ -20,4 +20,5 @@ runs:
         # configure github cli for automatic release generation
         echo "${{ inputs.github-token }}" > token.dat
         gh auth login --with-token < token.dat
+        gh auth status
 
