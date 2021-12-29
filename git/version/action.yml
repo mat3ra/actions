@@ -18,6 +18,10 @@ runs:
       run: |
         DATE=$(date +%Y.%m.%d)
         LATEST=$(git describe --tags --abbrev=0)
+        echo "date: ${DATE}"
+        echo "latest: ${LATEST}"
+        FROM_GH=$(gh release list --limit 1)
+        echo "from_gh: ${FROM_GH}"
         if [[ "${LATEST}" != *"${DATE}"* ]]; then
             TAG_NAME="${DATE}-0"
         else
