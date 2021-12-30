@@ -1,16 +1,17 @@
+---
+
 name: Configure Git Repository
 inputs:
   github-token:
-    description: "grants access to github repository"
+    description: grants access to github repository
     required: true
-    default: ""
   fetch-tags:
-    description: "fetch existing git tags"
+    description: fetch existing git tags
     required: false
     default: 'false'
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Configure git for bot account
       shell: bash -l {0}

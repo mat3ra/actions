@@ -1,29 +1,29 @@
+---
+
 name: Publish NPM Package and Git Release
 inputs:
   node-version:
-    description: "Version of Node to use"
+    description: Version of Node to use
     required: false
   npm-token:
-    description: "grants access to publish releases to NPM"
+    description: grants access to publish releases to NPM
     required: true
-    default: ""
   github-token:
-    description: "grants access to publish releases to github"
-    required: true 
-    default: ""
+    description: grants access to publish releases to github
+    required: true
   verify-tests:
-    description: "if true, run npm test"
+    description: if true, run npm test
     required: false
-    default: "true"
+    default: 'true'
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Setup NodeJS
       uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.node-version }}
-        registry-url: 'https://registry.npmjs.org'
+        registry-url: https://registry.npmjs.org
         always-auth: true
     - name: Install
       shell: bash -l {0}
@@ -77,4 +77,3 @@ runs:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.npm-publish.outputs.published-version }}
         sync-branch: 'true'
-

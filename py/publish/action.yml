@@ -1,24 +1,26 @@
+---
+
 name: Publish Git Release and Python Package
 inputs:
   python-version:
-    description: "Version of Python to use"
+    description: Version of Python to use
     required: true
   github-token:
-    description: "Grants access to publish releases to github"
+    description: Grants access to publish releases to github
     required: true
   pypi-username:
-    description: "Username on PyPI"
+    description: Username on PyPI
     required: true
   pypi-password:
-    description: "Password of PyPI user"
+    description: Password of PyPI user
     required: true
   publish-tag:
-    description: "Publish tag and release before publishing to PyPI"
+    description: Publish tag and release before publishing to PyPI
     required: true
-    default: "true"
+    default: 'true'
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Publish Tag & Release to Github
       if: inputs.publish-tag == 'true'
@@ -43,5 +45,3 @@ runs:
       env:
         TWINE_USERNAME: ${{ inputs.pypi-username }}
         TWINE_PASSWORD: ${{ inputs.pypi-password }}
-
-

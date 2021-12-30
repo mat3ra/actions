@@ -1,20 +1,22 @@
+---
+
 name: Run Python Tests
 inputs:
   python-version:
-    description: "Version of Python to use"
+    description: Version of Python to use
     required: true
   unit-test-directory:
-    description: "Path to unit tests"
+    description: Path to unit tests
     required: false
-    default: ""
+    default: ''
   integration-test-directory:
-    description: "Path to integration tests"
+    description: Path to integration tests
     required: false
-    default: ""
+    default: ''
 
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Setup Python ${{ inputs.python-version }}
       uses: actions/setup-python@v2
@@ -29,10 +31,11 @@ runs:
       if: inputs.unit-test-directory != ''
       shell: bash -l {0}
       run:
-        python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
+        python -m unittest discover --verbose --catch \
+            --start-directory ${{ inputs.unit-test-directory }}
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
       run: |
-        python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
-
+        python -m unittest discover --verbose --catch \
+            --start-directory ${{ inputs.integration-test-directory }}

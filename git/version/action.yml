@@ -1,12 +1,14 @@
+---
+
 name: Create New Version in Github
 inputs:
   github-token:
-    description: "grants access to publish releases to github"
-    required: true
-    default: ""
+    description: grants access to publish releases to github
+    required: 'true'
+    default: ''
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Configure repository
       uses: ./actions/git/config
