@@ -12,11 +12,16 @@ inputs:
   pypi-password:
     description: "Password of PyPI user"
     required: true
+  publish-tag:
+    description: "Publish tag and release before publishing to PyPI"
+    required: true
+    default: "true"
 
 runs:
   using: "composite"
   steps:
     - name: Publish Tag & Release to Github
+      if: inputs.publish-tag == 'true'
       uses: ./actions/git/version
       with:
         github-token: ${{ inputs.github-token }}

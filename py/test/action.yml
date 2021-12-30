@@ -5,7 +5,8 @@ inputs:
     required: true
   unit-test-directory:
     description: "Path to unit tests"
-    required: true
+    required: false
+    default: ""
   integration-test-directory:
     description: "Path to integration tests"
     required: false
@@ -25,6 +26,7 @@ runs:
         python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements-dev.txt
     - name: Run unit tests
+      if: inputs.unit-test-directory != ''
       shell: bash -l {0}
       run:
         python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
