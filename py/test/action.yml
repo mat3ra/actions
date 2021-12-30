@@ -13,7 +13,10 @@ inputs:
     description: Path to integration tests
     required: false
     default: ''
-
+  test-script:
+    description: Path to a script that runs tests
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -39,3 +42,8 @@ runs:
       run: |
         python -m unittest discover --verbose --catch \
             --start-directory ${{ inputs.integration-test-directory }}
+    - name: Run scripted tests
+      if: inputs.test-script != ''
+      shell: bash -l {0}
+      run: |
+        python ${{ inputs.test-script }}
