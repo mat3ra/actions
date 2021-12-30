@@ -20,15 +20,15 @@ runs:
       shell: bash -l {0}
       run: |
         DATE=$(date +%Y.%m.%d)
-        LATEST=$(git describe --tags --abbrev=0)
-        if [[ "${LATEST}" != *"${DATE}"* ]]; then
+        LATEST_TAG=$(git describe --tags --abbrev=0)
+        if [[ "${LATEST_TAG}" != *"${DATE}"* ]]; then
             TAG_NAME="${DATE}-0"
         else
-            OLD=$(echo ${LATEST} | cut -d- -f2)
+            OLD=$(echo ${LATEST_TAG} | cut -d- -f2)
             NEW=$((OLD + 1))
             TAG_NAME="${DATE}-${NEW}"; fi
         echo "today's date: ${DATE}"
-        echo "latest tag: ${LATEST}"
+        echo "latest tag: ${LATEST_TAG}"
         echo "new tag: ${TAG_NAME}"
         git tag ${TAG_NAME}
         echo "::set-output name=tag-name::$(echo ${TAG_NAME})"
