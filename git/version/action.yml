@@ -19,18 +19,15 @@ runs:
       run: |
         DATE=$(date +%Y.%m.%d)
         LATEST=$(git describe --tags --abbrev=0)
-        NOABBR=$(git describe --tags)
-        FROM_GH=$(gh release list --limit 1)
-        echo "date: ${DATE}"
-        echo "latest: ${LATEST}"
-        echo "noabbr: ${NOABBR}"
-        echo "from_gh: ${FROM_GH}"
         if [[ "${LATEST}" != *"${DATE}"* ]]; then
             TAG_NAME="${DATE}-0"
         else
             OLD=$(echo ${LATEST} | cut -d- -f2)
             NEW=$((OLD + 1))
             TAG_NAME="${DATE}-${NEW}"; fi
+        echo "today's date: ${DATE}"
+        echo "latest tag: ${LATEST}"
+        echo "new tag: ${TAG_NAME}"
         git tag ${TAG_NAME}
         echo "::set-output name=tag-name::$(echo ${TAG_NAME})"
     - name: Create release
