@@ -4,12 +4,15 @@ inputs:
     description: "grants access to github repository"
     required: true
     default: ""
+  fetch-tags:
+    description: "fetch existing git tags"
+    required: false
+    default: 'false'
 
 runs:
   using: "composite"
   steps:
-    - name: Set Github Config
-      id: configure-git
+    - name: Configure git for bot account
       shell: bash -l {0}
       run: |
         # configure git repository for downstream interaction
@@ -17,8 +20,18 @@ runs:
         git remote set-url origin ${REPO_URL}
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
+    - name: Authenticate to github CLI
+      shell: bash -l {0}
+      run: |
         # configure github cli for automatic release generation
         echo "${{ inputs.github-token }}" > token.dat
         gh auth login --with-token < token.dat
         gh auth status
+    - name: Fetch git tags
+      if: inputs.fetch-tags == 'true'
+      shell: bash -l {0}
+      run: |
+        git fetch --prune --unshallow --tags
+        echo exit code $?
+        git tag --list
 

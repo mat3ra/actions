@@ -12,15 +12,18 @@ runs:
       uses: ./actions/git/config
       with:
         github-token: ${{ inputs.github-token }}
+        fetch-tags: 'true'
     - name: Determine version tag
       id: get-tag
       shell: bash -l {0}
       run: |
         DATE=$(date +%Y.%m.%d)
         LATEST=$(git describe --tags --abbrev=0)
+        NOABBR=$(git describe --tags)
+        FROM_GH=$(gh release list --limit 1)
         echo "date: ${DATE}"
         echo "latest: ${LATEST}"
-        FROM_GH=$(gh release list --limit 1)
+        echo "noabbr: ${NOABBR}"
         echo "from_gh: ${FROM_GH}"
         if [[ "${LATEST}" != *"${DATE}"* ]]; then
             TAG_NAME="${DATE}-0"
