@@ -38,15 +38,11 @@ runs:
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
       shell: bash -l {0}
-      run:
-        python -m unittest discover --verbose --catch \
-            --start-directory ${{ inputs.unit-test-directory }}
+      run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}  # yamllint disable-line rule: line-length
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
-      run: |
-        python -m unittest discover --verbose --catch \
-            --start-directory ${{ inputs.integration-test-directory }}
+      run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}  # yamllint disable-line rule: line-length
     - name: Run scripted tests
       if: inputs.test-script != ''
       shell: bash -l {0}
