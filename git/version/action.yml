@@ -14,7 +14,9 @@ runs:
       uses: ./actions/git/config
       with:
         github-token: ${{ inputs.github-token }}
-        fetch-tags: 'true'
+    - name: Fetch git tags
+      shell: bash -l {0}
+      run: git fetch --prune --unshallow --tags
     - name: Determine version tag
       id: get-tag
       shell: bash -l {0}

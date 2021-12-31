@@ -5,10 +5,6 @@ inputs:
   github-token:
     description: grants access to github repository
     required: true
-  fetch-tags:
-    description: fetch existing git tags
-    required: false
-    default: 'false'
 
 runs:
   using: composite
@@ -27,7 +23,3 @@ runs:
         # configure github cli for automatic release generation
         echo "${{ inputs.github-token }}" > token.dat
         gh auth login --with-token < token.dat
-    - name: Fetch git tags
-      if: inputs.fetch-tags == 'true'
-      shell: bash -l {0}
-      run: git fetch --prune --unshallow --tags
