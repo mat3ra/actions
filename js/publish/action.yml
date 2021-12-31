@@ -1,6 +1,7 @@
 ---
 
 name: Publish NPM Package and Git Release
+description: Uses today's date and npm version to determine new tag. See README for more detail.
 inputs:
   node-version:
     description: Version of Node to use

@@ -1,6 +1,7 @@
 ---
 
 name: Create New Version in Github
+description: Uses today's date and existing tags to determine new tag. See README for more detail.
 inputs:
   github-token:
     description: grants access to publish releases to github

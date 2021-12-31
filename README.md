@@ -40,6 +40,29 @@ from the `main` branch in this repository. In the example, the `actions` reposit
 a relative directory called `actions`. Actions which refer to other actions in this repository
 assume this convention and they should be referred to locally as `./actions/.../...`.
 
+### Automated Publishing
+
+Both the `py/publish/action` and the `js/publish/action` will automatically
+publish code packages to PyPI and NPM, respectively. The convention for the versions
+is determined by the following pseudo-code:
+```
+date = today's date (YYYY.MM.DD follows semver)
+latest_tag = most recent tag in git
+if latest_tag starts with date:
+    new_tag = latest_tag-N + 1
+else
+    new_tag = date-0
+```
+There are some useful things to keep in mind when using these publish actions:
+1. In the `js/publish/action`, the `npm version` command partially provides this logic,
+which actually creates a new commit on the branch from
+which we are publishing, along with the new git tag.
+2. For python-only packages, the logic in `git/version/action` fills in the missing
+behavior provided by `npm version` to generate git tags, (without creating a commit).
+3. For packages which contain a python AND a javascript package, we let `js/publish/action`
+run first to create the commit and tag, and then call `py/publish/action` with `publish-tag == 'false'`
+4. Make sure the `exabyte-io-bot` has write permissions to the repository you're publishing!
+
 ### Notes:
 
  - Calling workflows must still use `actions/checkout@v2` before these actions.
