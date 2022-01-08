@@ -1,15 +1,15 @@
+---
+
 name: Configure Git Repository
 inputs:
   github-token:
-    description: "grants access to github repository"
+    description: grants access to github repository
     required: true
-    default: ""
 
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: Set Github Config
-      id: configure-git
+    - name: Configure git for bot account
       shell: bash -l {0}
       run: |
         # configure git repository for downstream interaction
@@ -17,8 +17,9 @@ runs:
         git remote set-url origin ${REPO_URL}
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
-        git checkout ${{ github.ref_name }}
+    - name: Authenticate to github CLI
+      shell: bash -l {0}
+      run: |
         # configure github cli for automatic release generation
         echo "${{ inputs.github-token }}" > token.dat
         gh auth login --with-token < token.dat
-

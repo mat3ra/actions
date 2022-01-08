@@ -1,29 +1,30 @@
+---
+
 name: Publish NPM Package and Git Release
+description: Uses today's date and npm version to determine new tag. See README for more detail.
 inputs:
   node-version:
-    description: "Version of Node to use"
+    description: Version of Node to use
     required: false
   npm-token:
-    description: "grants access to publish releases to NPM"
+    description: grants access to publish releases to NPM
     required: true
-    default: ""
   github-token:
-    description: "grants acces to publish releases to github"
-    required: true 
-    default: ""
+    description: grants access to publish releases to github
+    required: true
   verify-tests:
-    description: "if true, run npm test"
+    description: if true, run npm test
     required: false
-    default: "true"
+    default: 'true'
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Setup NodeJS
       uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.node-version }}
-        registry-url: 'https://registry.npmjs.org'
+        registry-url: https://registry.npmjs.org
         always-auth: true
     - name: Install
       shell: bash -l {0}
@@ -46,6 +47,17 @@ runs:
         NPM_REPOSITORY_PATH=$(echo ${GITHUB_REPOSITORY_PATH} | tr '[:upper:]' '[:lower:]')
         echo "::set-output name=npm-repository-path::$(echo ${NPM_REPOSITORY_PATH})"
 
+    - name: Prepare NPMIgnore
+      shell: bash -l {0}
+      run: |
+        # npm uses .gitignore by default if .npmignore is not present
+        # but if .npmignore is present, it will not use .gitignore
+        # and we want .npmignore to be a superset of files to ignore
+        cat .gitignore >> .npmignore   # if .npmignore not specified, defaults to .gitignore
+        cat npmignore >> .npmignore 2>/dev/null  # add real npmignore contents if they exist
+        echo "actions/" >> .npmignore  # don't package our composite actions into NPM packages
+        echo ".github/" >> .npmignore  # don't package our project actions either
+
     - name: Publish release to NPM
       shell: bash -l {0}
       id: npm-publish
@@ -54,7 +66,7 @@ runs:
           # on already published packages and today's date
           NPM_REPOSITORY_PATH=${{ steps.npm-repo.outputs.npm-repository-path }}
           NPM_VERSIONS=$(npm show @${NPM_REPOSITORY_PATH} versions)
-          DATE=$(date +%Y.%m.%d)
+          DATE=$(date +%Y.%-m.%-d)
           if [[ "${NPM_VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
               cmd="npm version ${DATE}-0"                  # date's first release
           else
@@ -76,5 +88,4 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.npm-publish.outputs.published-version }}
-        sync-branch: "true"
-
+        sync-branch: 'true'

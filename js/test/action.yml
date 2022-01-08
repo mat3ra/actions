@@ -1,20 +1,14 @@
+---
+
 name: Run JS Tests
 inputs:
   node-version:
-    description: "Version of Node to use"
+    description: Version of Node to use
     required: false
-  checkout-lfs:
-    description: "if true, run git lfs pull"
-    required: false
-    default: false
 
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: Checkout LFS objects
-      if: inputs.checkout-lfs
-      shell: bash -l {0}
-      run: git lfs pull
     - name: Setup NodeJS
       uses: actions/setup-node@v2
       with:
@@ -28,4 +22,3 @@ runs:
     - name: Test
       shell: bash -l {0}
       run: npm test
-

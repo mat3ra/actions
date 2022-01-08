@@ -1,0 +1,36 @@
+---
+
+name: Create New Version in Github
+description: Uses today's date and existing tags to determine new tag. See README for more detail.
+inputs:
+  github-token:
+    description: grants access to publish releases to github
+    required: 'true'
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Determine version tag
+      id: get-tag
+      shell: bash -l {0}
+      run: |
+        DATE=$(date +%Y.%-m.%-d)
+        LATEST_TAG=$(git describe --tags --abbrev=0)
+        if [[ "${LATEST_TAG}" != *"${DATE}"* ]]; then
+            TAG_NAME="${DATE}-0"
+        else
+            OLD=$(echo ${LATEST_TAG} | cut -d- -f2)
+            NEW=$((OLD + 1))
+            TAG_NAME="${DATE}-${NEW}"; fi
+        echo "today's date: ${DATE}"
+        echo "latest tag: ${LATEST_TAG}"
+        echo "new tag: ${TAG_NAME}"
+        git tag ${TAG_NAME}
+        echo "::set-output name=tag-name::$(echo ${TAG_NAME})"
+    - name: Create release
+      uses: ./actions/git/release
+      with:
+        tag-name: ${{ steps.get-tag.outputs.tag-name }}
+        github-token: ${{ inputs.github-token }}
+        sync-branch: 'false'

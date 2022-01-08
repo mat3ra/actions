@@ -1,0 +1,10 @@
+---
+
+name: Set shared variables for python workflows
+
+runs:
+  using: composite
+  steps:
+    - name: Set Environment
+      shell: bash -l {0}
+      run: sed "" ./actions/py/env/env >> $GITHUB_ENV

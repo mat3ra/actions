@@ -1,20 +1,22 @@
+---
+
 name: Release to Github
 inputs:
   github-token:
-    description: "grants access to github repository"
+    description: grants access to github repository
     required: true
-    default: ""
+    default: ''
   tag-name:
-    description: "name of tag to push and release"
+    description: name of tag to push and release
     required: true
-    default: ""
+    default: ''
   sync-branch:
-    description: "string which if 'true', will push commits back to branch"
+    description: string which if true, will push commits back to branch
     required: true
-    default: "false"
+    default: 'false'
 
 runs:
-  using: "composite"
+  using: composite
   steps:
 
     - name: Sync Branch
@@ -30,5 +32,4 @@ runs:
       shell: bash -l {0}
       run: |
           NOTES="Release ${{ inputs.tag-name }} created by exabyte-io-bot"
-          gh release create ${{ inputs.tag-name }} --notes "${NOTES}" --prerelease
-
+          gh release create ${{ inputs.tag-name }} --notes "${NOTES}"
