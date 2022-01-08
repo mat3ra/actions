@@ -8,6 +8,12 @@ and `purpose` is the intent of the action. By default, actions take the
 name `action.yml`, hence the use of a directory structure to differentiate
 them.
 
+## Caveats
+
+Publish actions may interfere with the `Re-run Workflow` functionality in the
+Github UI. `JS` actions push a commit, which alters the state of the main branch.
+The worfklow however, caches the commit of the previous run!
+
 ### Usage
 
 These actions are not standalone, and are intended to be used in other workflows.
