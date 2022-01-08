@@ -48,6 +48,11 @@ runs:
           pip==${PIP_VERSION} \
           build==${BUILD_VERSION} \
           twine==${TWINE_VERSION}
+    - name: Debug git repository
+      shell: bash -l {0}
+      run: |
+        git log -n 1
+        git status
     - name: Build Package
       shell: bash -l {0}
       run: python -m build
