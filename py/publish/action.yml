@@ -27,9 +27,12 @@ runs:
       uses: ./actions/git/config
       with:
         github-token: ${{ inputs.github-token }}
-    - name: Fetch git tags
+    - name: Fetch git tags and git pull
       shell: bash -l {0}
-      run: git fetch --prune --unshallow --tags
+      run: |
+        git fetch --prune --unshallow --tags
+        # Only really necessary when JS gets published first
+        git pull origin ${{ github.ref_name }}
     - name: Publish Tag & Release to Github
       if: inputs.publish-tag == 'true'
       uses: ./actions/git/version
