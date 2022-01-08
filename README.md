@@ -42,7 +42,7 @@ assume this convention and they should be referred to locally as `./actions/.../
 
 ### Yamllint usage
 
-A github workflow will validate the YAML configuration of all the actions files on every branch.
+A github workflow will validate the YAML configuration of all the actions files on every push.
 You can set up and run `yamllint` locally with the following:
 
 ```bash
@@ -73,7 +73,7 @@ which actually creates a new commit on the branch from
 which we are publishing, along with the new git tag.
 2. For python-only packages, the logic in `git/version/action` fills in the missing
 behavior provided by `npm version` to generate git tags, (without creating a commit).
-3. For packages which contain a python AND a javascript package, we let `js/publish/action`
+3. For a repository is both a Python AND a JavaScript package, we let `js/publish/action`
 run first to create the commit and tag, and then call `py/publish/action` with `publish-tag == 'false'`
 4. Make sure the `exabyte-io-bot` has write permissions to the repository you're publishing!
 
