@@ -55,7 +55,7 @@ runs:
           # on already published packages and today's date
           NPM_REPOSITORY_PATH=${{ steps.npm-repo.outputs.npm-repository-path }}
           NPM_VERSIONS=$(npm show @${NPM_REPOSITORY_PATH} versions)
-          DATE=$(date +%Y.%m.%d)
+          DATE=$(date +%Y.%-m.%-d)
           if [[ "${NPM_VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
               cmd="npm version ${DATE}-0"                  # date's first release
           else

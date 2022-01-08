@@ -22,7 +22,7 @@ runs:
       id: get-tag
       shell: bash -l {0}
       run: |
-        DATE=$(date +%Y.%m.%d)
+        DATE=$(date +%Y.%-m.%-d)
         LATEST_TAG=$(git describe --tags --abbrev=0)
         if [[ "${LATEST_TAG}" != *"${DATE}"* ]]; then
             TAG_NAME="${DATE}-0"
