@@ -15,10 +15,7 @@ runs:
         node-version: ${{ inputs.node-version }}
     - name: Install
       shell: bash -l {0}
-      run: |
-        npm install
-        NPM_REPOSITORY_PATH=$(jq -r .name package.json)
-        echo $NPM_REPOSITORY_PATH
+      run: npm install
     - name: Build
       shell: bash -l {0}
       run: npm run build --if-present
