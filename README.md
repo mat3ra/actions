@@ -75,6 +75,10 @@ which we are publishing, along with the new git tag.
 behavior provided by `npm version` to generate git tags, (without creating a commit).
 3. For a repository is both a Python AND a JavaScript package, we let `js/publish/action`
 run first to create the commit and tag, and then call `py/publish/action` with `publish-tag == 'false'`
+   - Due to the convention `npm` uses for tracking git changes and ignoring package files,
+    define `python` files to be ignored in `js` packages in an `npmignore` file (no leading `.`).
+     The default `.gitignore` will also be respected, as well as common workflow files, e.g.
+     files in `actions/` and `.github`. Be sure to have `.npmignore` in the `.gitignore`.
 4. Make sure the `exabyte-io-bot` has write permissions to the repository you're publishing!
 
 ### Notes:

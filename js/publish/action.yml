@@ -54,6 +54,7 @@ runs:
         # but if .npmignore is present, it will not use .gitignore
         # and we want .npmignore to be a superset of files to ignore
         cat .gitignore >> .npmignore   # if .npmignore not specified, defaults to .gitignore
+        cat npmignore >> .npmignore 2>/dev/null  # add real npmignore contents if they exist
         echo "actions/" >> .npmignore  # don't package our composite actions into NPM packages
         echo ".github/" >> .npmignore  # don't package our project actions either
 
