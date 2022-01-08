@@ -47,6 +47,16 @@ runs:
         NPM_REPOSITORY_PATH=$(echo ${GITHUB_REPOSITORY_PATH} | tr '[:upper:]' '[:lower:]')
         echo "::set-output name=npm-repository-path::$(echo ${NPM_REPOSITORY_PATH})"
 
+    - name: Prepare NPMIgnore
+      shell: bash -l {0}
+      run: |
+        # npm uses .gitignore by default if .npmignore is not present
+        # but if .npmignore is present, it will not use .gitignore
+        # and we want .npmignore to be a superset of files to ignore
+        cat .gitignore >> .npmignore   # if .npmignore not specified, defaults to .gitignore
+        echo "actions/" >> .npmignore  # don't package our composite actions into NPM packages
+        echo ".github/" >> .npmignore  # don't package our project actions either
+
     - name: Publish release to NPM
       shell: bash -l {0}
       id: npm-publish
