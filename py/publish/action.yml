@@ -1,6 +1,7 @@
 ---
 
 name: Publish Git Release and Python Package
+description: Publishes a new version of a python package to PyPI
 inputs:
   python-version:
     description: Version of Python to use
@@ -22,6 +23,13 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Configure Repository
+      uses: ./actions/git/config
+      with:
+        github-token: ${{ inputs.github-token }}
+    - name: Fetch git tags
+      shell: bash -l {0}
+      run: git fetch --prune --unshallow --tags
     - name: Publish Tag & Release to Github
       if: inputs.publish-tag == 'true'
       uses: ./actions/git/version
