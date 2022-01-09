@@ -38,15 +38,6 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
 
-    - name: Get NPM Repo Name
-      id: npm-repo
-      shell: bash -l {0}
-      run: |
-        GITHUB_REPOSITORY_PATH=${{ github.repository }}
-        # github organization name is Exabyte-io but npm organization name is exabyte-io
-        NPM_REPOSITORY_PATH=$(echo ${GITHUB_REPOSITORY_PATH} | tr '[:upper:]' '[:lower:]')
-        echo "::set-output name=npm-repository-path::$(echo ${NPM_REPOSITORY_PATH})"
-
     - name: Prepare NPMIgnore
       shell: bash -l {0}
       run: |
@@ -64,14 +55,14 @@ runs:
       run: |
           # Determine which npm version command to run based
           # on already published packages and today's date
-          NPM_REPOSITORY_PATH=${{ steps.npm-repo.outputs.npm-repository-path }}
-          NPM_VERSIONS=$(npm show @${NPM_REPOSITORY_PATH} versions)
+          NPM_REPOSITORY=$(jq -r .name package.json)
+          NPM_VERSIONS=$(npm show ${NPM_REPOSITORY} versions)
           DATE=$(date +%Y.%-m.%-d)
           if [[ "${NPM_VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
               cmd="npm version ${DATE}-0"                  # date's first release
           else
               cmd="npm version prerelease"; fi             # pre-release covers it
-          echo "npm pkg repository: ${NPM_REPOSITORY_PATH}"
+          echo "npm pkg repository: ${NPM_REPOSITORY}"
           echo "published versions: ${NPM_VERSIONS}"
           echo "npm command to run: ${cmd}"
           # create new version and publish
