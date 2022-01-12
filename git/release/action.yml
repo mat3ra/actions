@@ -26,7 +26,9 @@ runs:
 
     - name: Push Tag To Remote
       shell: bash -l {0}
-      run: git push origin ${{ inputs.tag-name }}
+      run: |
+          git push origin ${{ inputs.tag-name }}
+          sleep 15  # give github time to register the tag before publishing
 
     - name: Create Release
       shell: bash -l {0}
