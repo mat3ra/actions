@@ -1,10 +1,13 @@
 ---
 
 name: Create New Version Tag
-description: Uses today's date and existing tags to determine new tag. See README for more detail. Assumes git has been configured for use in the workflow.
+description: |
+  Uses today's date and existing tags to determine new tag.
+  See README for more detail. Assumes git has been configured for use in the workflow.
 inputs:
   create-new-tag:
-    description: if true, create a new tag. Set to false for subsequent publish steps in a single workflow
+    description: |
+      if true, create a new tag. Set to false for subsequent publish steps in a single workflow
     required: false
     default: 'true'
 outputs:
