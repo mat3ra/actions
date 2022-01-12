@@ -70,6 +70,8 @@ runs:
           echo "npm pkg repository: ${NPM_REPOSITORY}"
           echo "published versions: ${NPM_VERSIONS}"
           echo "npm command to run: ${cmd}"
+          git status
+          git diff package.json
           # create new version and publish
           # Note: this cmd creates a new commit on the branch
           # which is why we want to sync-branch in the next step
