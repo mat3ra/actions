@@ -41,13 +41,18 @@ runs:
     - name: Prepare NPMIgnore
       shell: bash -l {0}
       run: |
-        # npm uses .gitignore by default if .npmignore is not present
-        # but if .npmignore is present, it will not use .gitignore
-        # and we want .npmignore to be a superset of files to ignore
-        cat .gitignore >> .npmignore   # if .npmignore not specified, defaults to .gitignore
-        cat npmignore >> .npmignore 2>/dev/null  # add real npmignore contents if they exist
-        echo "actions/" >> .npmignore  # don't package our composite actions into NPM packages
-        echo ".github/" >> .npmignore  # don't package our project actions either
+        # if package.json specifies what files to pack, skip this step
+        FILES=$(jq -r .files package.json)
+        if [[ "${FILES}" == "null" ]]; then
+            # npm uses .gitignore by default if .npmignore is not present
+            # but if .npmignore is present, it will not use .gitignore
+            # and we want .npmignore to be a superset of files to ignore
+            cat .gitignore >> .npmignore   # if .npmignore not specified, defaults to .gitignore
+            cat npmignore >> .npmignore 2>/dev/null  # add real npmignore contents if they exist
+            echo "actions/" >> .npmignore  # don't package our composite actions into NPM packages
+            echo ".github/" >> .npmignore  # don't package our project actions either
+            echo "token.dat" >> .npmignore # don't ship the github token used for gh CLI
+        fi
 
     - name: Publish release to NPM
       shell: bash -l {0}
