@@ -79,7 +79,6 @@ runs:
           # which is why we want to sync-branch in the next step
           PUBLISHED_VERSION=$(${cmd})
           echo "::set-output name=published-version::$(echo ${PUBLISHED_VERSION})"
-          npm publish
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
 
@@ -89,3 +88,8 @@ runs:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.npm-publish.outputs.published-version }}
         sync-branch: 'true'
+
+    - name: Publish to NPM
+      shell: bash -l {0}
+      run: npm publish
+
