@@ -23,3 +23,8 @@ runs:
         # configure github cli for automatic release generation
         echo "${{ inputs.github-token }}" > token.dat
         gh auth login --with-token < token.dat
+    - name: Fetch git tags
+      shell: bash -l {0}
+      run: |
+        # fetch all git tags for version logic
+        git fetch --prune --unshallow --tags

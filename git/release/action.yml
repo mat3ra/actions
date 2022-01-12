@@ -10,7 +10,7 @@ inputs:
     description: name of tag to push and release
     required: true
     default: ''
-  sync-branch:
+  sync-branch:  # TODO : remove this option and step
     description: string which if true, will push commits back to branch
     required: true
     default: 'false'
@@ -23,6 +23,10 @@ runs:
       if: inputs.sync-branch == 'true'
       shell: bash -l {0}
       run: git push --force origin ${{ github.ref_name }}
+
+    - name: Create git tag
+      shell: bash -l {0}
+      run: git tag ${{ inputs.tag-name }}
 
     - name: Push Tag To Remote
       shell: bash -l {0}
