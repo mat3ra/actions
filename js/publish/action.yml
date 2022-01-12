@@ -53,6 +53,8 @@ runs:
             echo ".github/" >> .npmignore  # don't package our project actions either
             echo "token.dat" >> .npmignore # don't ship the github token used for gh CLI
         fi
+        git status
+        git diff package.json
 
     - name: Publish release to NPM
       shell: bash -l {0}

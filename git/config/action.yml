@@ -17,9 +17,14 @@ runs:
         git remote set-url origin ${REPO_URL}
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
+        git status
+        git diff package.json
     - name: Authenticate to github CLI
       shell: bash -l {0}
       run: |
         # configure github cli for automatic release generation
         echo "${{ inputs.github-token }}" > token.dat
         gh auth login --with-token < token.dat
+        git status
+        git diff package.json
+
