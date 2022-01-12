@@ -84,4 +84,3 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.npm-publish.outputs.published-version }}
-        sync-branch: 'true'
