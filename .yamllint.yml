@@ -7,6 +7,7 @@ rules:
     max: 100
   empty-lines:
     level: warning
+    max-end: 1
   quoted-strings:
     quote-type: single
     required: only-when-needed

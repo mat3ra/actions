@@ -22,7 +22,7 @@ runs:
     - name: Sync Branch
       if: inputs.sync-branch == 'true'
       shell: bash -l {0}
-      run: git push --force origin ${{ github.ref_name }}
+      run: echo "Remove the sync-branch parameter from downstream workflows! It is deprecated"
 
     - name: Create git tag
       shell: bash -l {0}
