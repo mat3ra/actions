@@ -8,12 +8,6 @@ and `purpose` is the intent of the action. By default, actions take the
 name `action.yml`, hence the use of a directory structure to differentiate
 them.
 
-## Caveats
-
-Publish actions may interfere with the `Re-run Workflow` functionality in the
-Github UI. `JS` actions push a commit, which alters the state of the main branch.
-The worfklow however, caches the commit of the previous run!
-
 ### Usage
 
 These actions are not standalone, and are intended to be used in other workflows.
@@ -69,26 +63,39 @@ is determined by the following pseudo-code:
 date = today's date (YYYY.MM.DD follows semver)
 latest_tag = most recent tag in git
 if latest_tag starts with date:
-    new_tag = latest_tag-N + 1
+    new_tag = latest_tag-(N + 1)
 else
     new_tag = date-0
 ```
 There are some useful things to keep in mind when using these publish actions:
-1. In the `js/publish/action`, the `npm version` command partially provides this logic,
-which actually creates a new commit on the branch from
-which we are publishing, along with the new git tag.
-2. For python-only packages, the logic in `git/version/action` fills in the missing
-behavior provided by `npm version` to generate git tags, (without creating a commit).
-3. For a repository is both a Python AND a JavaScript package, we let `js/publish/action`
-run first to create the commit and tag, and then call `py/publish/action` with `publish-tag == 'false'`
+1. The `publish` actions follow the philosophy of `setuptools_scm`, where the version
+   number is not tracked in git. Instead, it is programmatically generated at time of
+   package publication based on the state of the git tree.
+2. The logic for versioning JS and python packages is provided by the `git/version/action`.
+3. The `new_tag` defined above in `semver` is referred to as a "pre-release" and in `setuptools_scm` is referred
+   to as a "post-release". Functionally, there is no difference, but the default convention in `setuptools_scm`
+   is to use a `.postN` suffix in place of `-N`. This is configurable and can be controlled in the downstream `pyproject.toml`.
+   This means JS packages when published will have a version string of `YYYY.MM.DD-N` and python packages will have
+   a version string of `YYYY.MM.DD.postN`.
+4. **Important!** For a repository is both a Python AND a JavaScript package, we let the first publish action
+   create the git tag and release, and then provide the `publish-tag == 'false'` input parameter
+   to the second publish action. This means that the two publish steps in the downstream workflow
+   must run sequentially (by use of the `needs` parameter). This is to prevent both actions from
+   trying to create the same git tag + release, as the internal logic will likely result in two
+   different releases for the same code base!
    - Due to the convention `npm` uses for tracking git changes and ignoring package files,
     define `python` files to be ignored in `js` packages in an `npmignore` file (no leading `.`).
      The default `.gitignore` will also be respected, as well as common workflow files, e.g.
-     files in `actions/` and `.github`. Be sure to have `.npmignore` in the `.gitignore`.
-4. Make sure the `exabyte-io-bot` has write permissions to the repository you're publishing!
+     files in `actions/` and `.github`. Be sure to include `.npmignore` in the `.gitignore`.
+     See [this blog post](https://medium.com/@jdxcode/for-the-love-of-god-dont-use-npmignore-f93c08909d8d)
+     for justification of this behavior.
+5. Make sure the `exabyte-io-bot` has `write` permissions to the repository you're publishing!
 
 ### Notes:
 
+ - Because we opt to not track the version of a published package in git, the `version`
+   parameter in `package.json` is unrelated to the state of published code. Please use
+   git tags to check out published code.
  - Calling workflows must still use `actions/checkout@v2` before these actions.
    If the repository has `lfs` assets, include `with lfs: true` there.
  - Expression evaluation can be tricky in Github actions. Please see the caveats about
@@ -100,30 +107,13 @@ run first to create the commit and tag, and then call `py/publish/action` with `
    triggered by access tokens do not interact with Github actions. See
    [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token) 
    for details.
- - `js/publish/action.yml` will automatically version bump when publishing releases
-   to both NPM and Github. It follows a date-based prerelease convention.
- -  `py/publish/action.yml` mimics `js/publish` when publishing releases to PyPI and Github.
-    It follows the same date-based pre-release convention (post-release in `setuptools_scm` parlance).
-    
+
 
 ### To Do
 
-The `js/publish` action will automatically patch version bump when publishing to NPM.
-It will also push the new version tag and release to Github.
-Future work could benefit from downstream repositories that adhere to the use of
-commit tools like `commitlint` or `commitizen` and `semantic-release` to fill in details
-such as release notes.
-
-The content below describes an ideal setup where Github branch policies work as described.
-Unfortunately that doesn't appear to be the case at this time.
-
-The exabyte bot should be configured to be the only user that can force push to a matching branch.
-
-- **Important** In order for the "main" branch to be kept in-sync with the commits
-  that may happen during publication, the downstream repository must have
-  `Allow force pushes` enabled in the `Branch protection rule` for the branch to be
-  published. This allows commits generated by, for example, `npm`, to be pushed back
-  to the protected branch so that there is no confusion about the state of versioning
-  on the "main" branch.
-   - NB: "main" branch refers to whichever branch is reserved for publication, and could
-     be `main`, `master`, `dev`, etc., depending on the calling action
+The `publish` actions automatically push "post-release" patch versions
+to their respective package repositories. It also publishes a git tag and
+release with the same version. Future work could benefit from downstream
+repositories that adhere to the use of commit tools like `commitlint` or
+`commitizen` and `semantic-release` to fill in details such as release
+notes.

@@ -23,21 +23,23 @@ inputs:
 runs:
   using: composite
   steps:
+
     - name: Configure Repository
       uses: ./actions/git/config
       with:
         github-token: ${{ inputs.github-token }}
-    - name: Fetch git tags and git pull
-      shell: bash -l {0}
-      run: |
-        git fetch --prune --unshallow --tags
-        # Only really necessary when JS gets published first
-        git pull origin ${{ github.ref_name }}
-    - name: Publish Tag & Release to Github
-      if: inputs.publish-tag == 'true'
+    - name: Determine git tag
+      id: get-tag-name
       uses: ./actions/git/version
       with:
+        create-new-tag: ${{ inputs.publish-tag }}
+    - name: Publish new git tag and release
+      if: inputs.publish-tag == 'true'
+      uses: ./actions/git/release
+      with:
         github-token: ${{ inputs.github-token }}
+        tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
+
     - name: Setup Python ${{ inputs.python-version }}
       uses: actions/setup-python@v2
       with:

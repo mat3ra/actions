@@ -16,6 +16,10 @@ inputs:
     description: if true, run npm test
     required: false
     default: 'true'
+  publish-tag:
+    description: Publish tag and release before publishing to NPM
+    required: true
+    default: 'true'
 
 runs:
   using: composite
@@ -33,12 +37,24 @@ runs:
       if: inputs.verify-tests == 'true'
       shell: bash -l {0}
       run: npm test
+
     - name: Configure repository
       uses: ./actions/git/config
       with:
         github-token: ${{ inputs.github-token }}
+    - name: Determine git tag
+      id: get-tag-name
+      uses: ./actions/git/version
+      with:
+        create-new-tag: ${{ inputs.publish-tag }}
+    - name: Publish new git tag and release
+      if: inputs.publish-tag == 'true'
+      uses: ./actions/git/release
+      with:
+        github-token: ${{ inputs.github-token }}
+        tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
 
-    - name: Prepare NPMIgnore
+    - name: Prepare npmignore if not specified in package.json
       shell: bash -l {0}
       run: |
         # if package.json specifies what files to pack, skip this step
@@ -56,32 +72,10 @@ runs:
 
     - name: Publish release to NPM
       shell: bash -l {0}
-      id: npm-publish
       run: |
-          # Determine which npm version command to run based
-          # on already published packages and today's date
-          NPM_REPOSITORY=$(jq -r .name package.json)
-          NPM_VERSIONS=$(npm show ${NPM_REPOSITORY} versions)
-          DATE=$(date +%Y.%-m.%-d)
-          if [[ "${NPM_VERSIONS}" != *"${DATE}"* ]]; then  # did we publish date yet
-              cmd="npm version ${DATE}-0"                  # date's first release
-          else
-              cmd="npm version prerelease"; fi             # pre-release covers it
-          echo "npm pkg repository: ${NPM_REPOSITORY}"
-          echo "published versions: ${NPM_VERSIONS}"
-          echo "npm command to run: ${cmd}"
-          # create new version and publish
-          # Note: this cmd creates a new commit on the branch
-          # which is why we want to sync-branch in the next step
-          PUBLISHED_VERSION=$(${cmd})
-          echo "::set-output name=published-version::$(echo ${PUBLISHED_VERSION})"
-          npm publish
+        echo "tag name: ${{ steps.get-tag-name.outputs.tag-name }}"
+        npm --no-git-tag-version version "${{ steps.get-tag-name.outputs.tag-name }}"
+        npm publish
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
 
-    - name: Publish Tag & Release to Github
-      uses: ./actions/git/release
-      with:
-        github-token: ${{ inputs.github-token }}
-        tag-name: ${{ steps.npm-publish.outputs.published-version }}
-        sync-branch: 'true'

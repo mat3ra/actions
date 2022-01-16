@@ -10,7 +10,7 @@ inputs:
     description: name of tag to push and release
     required: true
     default: ''
-  sync-branch:
+  sync-branch:  # TODO : remove this option and step
     description: string which if true, will push commits back to branch
     required: true
     default: 'false'
@@ -22,7 +22,11 @@ runs:
     - name: Sync Branch
       if: inputs.sync-branch == 'true'
       shell: bash -l {0}
-      run: git push --force origin ${{ github.ref_name }}
+      run: echo "Remove the sync-branch parameter from downstream workflows! It is deprecated"
+
+    - name: Create git tag
+      shell: bash -l {0}
+      run: git tag ${{ inputs.tag-name }}
 
     - name: Push Tag To Remote
       shell: bash -l {0}
@@ -34,4 +38,4 @@ runs:
       shell: bash -l {0}
       run: |
           NOTES="Release ${{ inputs.tag-name }} created by exabyte-io-bot"
-          gh release create ${{ inputs.tag-name }} --notes "${NOTES}"
+          gh release create ${{ inputs.tag-name }} --title v${{inputs.tag-name }} --notes "${NOTES}"
