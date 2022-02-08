@@ -5,6 +5,12 @@ inputs:
   node-version:
     description: Version of Node to use
     required: false
+  validate-package-directory:
+    description: |
+      Call the js/validate action forwarding this parameter as package-directory.
+      Explicitly pass an empty string '' to skip validation.
+    required: false
+    default: .
 
 runs:
   using: composite
@@ -22,3 +28,9 @@ runs:
     - name: Test
       shell: bash -l {0}
       run: npm test
+    - name: Validate
+      if: inputs.validate-package-directory != ''
+      uses: ./actions/js/validate
+      with:
+        package-directory: ${{ inputs.validate-package-directory }}
+
