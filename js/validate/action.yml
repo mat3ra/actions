@@ -1,0 +1,31 @@
+---
+
+name: Validate JS Packages
+inputs:
+  package-directory:
+    description: Relative directory of the package.json file
+    required: false
+    default: .
+
+runs:
+  using: composite
+  steps:
+    # yamllint disable rule:line-length
+    # See https://stackoverflow.com/questions/23210437/npm-install-private-github-repositories-by-dependency-in-package-json#answer-35892637
+    # yamllint enable rule:line-length
+    # for more details and git configuration tips for managing this installation pattern
+    # TODO : Add eslint --check // prettier --check // test-coverage --check
+    - name: Validate package.json
+      shell: bash -l {0}
+      run: |
+        PKG_JSON=${{ inputs.package-directory }}/package.json
+        for invalid in "git: git+ssh: git+http: git+https:"; do
+          if grep -q "${invalid}" ${PKG_JSON}; then
+            echo "Found ${invalid} in package.json, please publish upstream package."
+            echo "Then update ${{ inputs.package-directory }}/package.json."
+            exit 1
+          else
+            echo "Found no ${invalid} references in package.json"
+          fi
+        done
+
