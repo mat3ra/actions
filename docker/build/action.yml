@@ -27,7 +27,7 @@ runs:
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: |
-        IMAGE_NAME=${{ inputs.image_name }}:${{ inputs.image-tag }}
+        IMAGE_NAME=${{ inputs.image-name }}:${{ inputs.image-tag }}
         if [[ "${{ inputs.cli-args }}" != "" ]]; then
           # Assume downstream repositories pass additional cli-args and need build context
           docker build ${{ inputs.cli-args }} -t ${IMAGE_NAME} -f ${{ inputs.dockerfile }} .
