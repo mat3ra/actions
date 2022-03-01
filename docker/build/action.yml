@@ -1,7 +1,9 @@
 ---
 
 name: Build a docker container
-description: Build docker images in the actions repository
+description: |
+  Build docker images in the actions repository or in downstream projects.
+
 inputs:
   dockerfile:
     description: path to the Dockerfile to build
@@ -13,6 +15,10 @@ inputs:
     description: image tag to use
     required: false
     default: latest
+  cli-args:
+    description: additional CLI args to pass to docker build
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -20,7 +26,14 @@ runs:
     - name: Build container
       shell: bash -l {0}
       # yamllint disable rule:line-length
-      # Assume we don't need a filesystem location build context for actions repo dockerfiles
-      run: docker build - -t ${{ inputs.image-name }}:${{ inputs.image-tag }} < ${{ inputs.dockerfile }}
+      run: |
+        IMAGE_NAME=${{ inputs.image_name }}:${{ inputs.image-tag }}
+        if [[ "${{ inputs.cli-args }}" != "" ]]; then
+          # Assume downstream repositories pass additional cli-args and need build context
+          docker build ${{ inputs.cli-args }} -t ${IMAGE_NAME} -f ${{ inputs.dockerfile }} .
+        else
+          # Assume we don't need a build context for actions repo dockerfiles
+          docker build - -t ${IMAGE_NAME} < ${{ inputs.dockerfile }}
+        fi
       # yamllint enable rule:line-length
 
