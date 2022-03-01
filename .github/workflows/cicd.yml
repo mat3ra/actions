@@ -18,8 +18,12 @@ jobs:
         uses: actions/setup-python@v2
       - name: Installs linter
         run: python -m pip install yamllint
-      - name: Runs linter
+      - name: Runs yaml linter
         run: yamllint .
+      - name: Runs docker linter
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: ./docker/build/centos/Dockerfile
 
   publish-centos:
     runs-on: ubuntu-latest
@@ -44,4 +48,5 @@ jobs:
           ecr-repository: centos-7.9-base
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          image-tag: latest
           action: push

@@ -35,8 +35,9 @@ ENV APP_NODE_VERSION 12.21.0
 ENV APP_NPM_VERSION 6.14.10
 ENV TEST_NODE_VERSION 8.11.4
 ENV TEST_NPM_VERSION 6.4.1
-RUN mkdir /usr/local/nvm
-RUN curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
+RUN mkdir /usr/local/nvm && \
+    wget -q https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh && \
+    sh install.sh && \
     . $NVM_DIR/nvm.sh && \
     nvm install $TEST_NODE_VERSION && \
     nvm install $APP_NODE_VERSION && \
@@ -47,11 +48,10 @@ ENV NODE_PATH $NVM_DIR/v$APP_NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$APP_NODE_VERSION/bin:$PATH
 
 # Configure git for git installs for both npm and pip
-RUN git config --system url."https://github.com".insteadOf git@github.com:
-RUN git config --system url."https://".insteadOf git://
-
-# Install a chrome binary for "headful"-headless testing
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
+# Then install a chrome binary for "headful"-headless testing
+RUN git config --system url."https://github.com".insteadOf git@github.com: && \
+    git config --system url."https://".insteadOf git:// && \
+    wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
     yum localinstall -y google-chrome-stable_current_x86_64.rpm && \
     yum clean all
 
