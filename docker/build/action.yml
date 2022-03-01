@@ -25,7 +25,6 @@ runs:
   steps:
     - name: Build container
       shell: bash -l {0}
-      # yamllint disable rule:line-length
       run: |
         IMAGE_NAME=${{ inputs.image-name }}:${{ inputs.image-tag }}
         if [[ "${{ inputs.cli-args }}" != "" ]]; then
@@ -35,5 +34,4 @@ runs:
           # Assume we don't need a build context for actions repo dockerfiles
           docker build - -t ${IMAGE_NAME} < ${{ inputs.dockerfile }}
         fi
-      # yamllint enable rule:line-length
 
