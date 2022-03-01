@@ -1,0 +1,29 @@
+---
+
+name: Build a docker container
+description: Build docker images in the actions repository
+inputs:
+  dockerfile:
+    description: path to the Dockerfile to build
+    required: false
+    default: ./actions/docker/build/centos/Dockerfile
+  image-name:
+    description: name of resulting docker image (If using ECR, `${ECR_REGISTRY}/${ECR_REPOSITORY}`)
+    required: false
+    default: centos-7.9-base
+  image-tag:
+    description: image tag to use
+    required: false
+    default: latest
+    docker build - -t centos-7.9-base:latest < docker/build/centos/Dockerfile
+
+runs:
+  using: composite
+  steps:
+    - name: Build container
+      shell: bash -l {0}
+      # Assume we don't need a filesystem location build context
+      # for these standalone dockerfiles
+      run: docker build - -t ${{< ${{ inputs.dockerfile }}
+      -t ${{ inputs.image-name }} ${{ inputs.dockerfile }}
+

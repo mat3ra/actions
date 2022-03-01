@@ -1,0 +1,50 @@
+---
+
+name: Interact with ECR 
+
+description: Composite action to pull/push a docker image
+inputs:
+  ecr-repository:
+    description: Name of ECR repository
+    required: true
+  image-tag:
+    description: Image tag to push to ECR
+    required: false
+    default: latest
+  action:
+    description: Whether to pull or push. If empty, no action is taken
+    required: false
+    default: ''
+  aws-region:
+    description: AWS region to use
+    required: false
+    default: us-west-2
+outputs:
+  ecr-registry:
+    description: Name of ECR registry
+    value: ${{ steps.login-ecr.outputs.registry }}
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.aws-region }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Interact with ECR
+      shell: bash -l {0}
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ecr-repository }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        COMMAND: ${{ inputs.action }}
+      run: |
+        if [[ "${COMMAND}" != "" ]]; then
+          docker ${COMMAND} ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+        fi
+
