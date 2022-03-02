@@ -29,3 +29,4 @@ runs:
       with:
         dockerfile: ${{ inputs.dockerfile }}
         config: ${{ steps.path.outputs.config-path }}
+
