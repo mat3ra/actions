@@ -26,6 +26,7 @@ jobs:
         uses: ./docker/validate
         with:
           dockerfile: ./docker/build/centos/Dockerfile
+          checked-out: false
 
   publish-centos:
     runs-on: ubuntu-latest
