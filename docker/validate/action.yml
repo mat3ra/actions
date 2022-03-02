@@ -1,0 +1,17 @@
+---
+
+name: Validate a Dockerfile
+description: Runs minimally hadolint on a given Dockerfile
+
+inputs:
+  dockerfile:
+    description: path to Dockerfile to lint
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Lint Dockerfile
+      uses: hadolint/hadolint-action@v1.6.0
+      with:
+        dockerfile: ${{ inputs.dockerfile }}

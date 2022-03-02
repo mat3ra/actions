@@ -23,7 +23,7 @@ jobs:
       - name: Runs yaml linter
         run: yamllint .
       - name: Runs docker linter
-        uses: hadolint/hadolint-action@v1.6.0
+        uses: ./docker/validate
         with:
           dockerfile: ./docker/build/centos/Dockerfile
 
