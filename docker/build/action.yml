@@ -1,0 +1,37 @@
+---
+
+name: Build a docker container
+description: |
+  Build docker images in the actions repository or in downstream projects.
+
+inputs:
+  dockerfile:
+    description: path to the Dockerfile to build
+    required: true
+  image-name:
+    description: name of resulting docker image (If using ECR, `${ECR_REGISTRY}/${ECR_REPOSITORY}`)
+    required: true
+  image-tag:
+    description: image tag to use
+    required: false
+    default: latest
+  cli-args:
+    description: additional CLI args to pass to docker build
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Build container
+      shell: bash -l {0}
+      run: |
+        IMAGE_NAME=${{ inputs.image-name }}:${{ inputs.image-tag }}
+        if [[ "${{ inputs.cli-args }}" != "" ]]; then
+          # Assume downstream repositories pass additional cli-args and need build context
+          docker build ${{ inputs.cli-args }} -t ${IMAGE_NAME} -f ${{ inputs.dockerfile }} .
+        else
+          # Assume we don't need a build context for actions repo dockerfiles
+          docker build - -t ${IMAGE_NAME} < ${{ inputs.dockerfile }}
+        fi
+

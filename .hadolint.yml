@@ -1,0 +1,5 @@
+---
+
+ignored:
+  - SC1091  # no error when sourcing files: Not following: File not included in mock.
+
