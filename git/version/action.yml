@@ -24,7 +24,7 @@ runs:
       run: |
         # This properly sorts multiple identical tags by when they were created
         TAGS=$(git for-each-ref --sort=creatordate --format='%(refname:short)' refs/tags)
-        LATEST_TAG=$(echo ${TAGS} | tail -n 1)
+        LATEST_TAG=$(echo "${TAGS}" | tail -n 1 | awk -F' ' '{print $NF}')
         if [[ "${{ inputs.create-new-tag }}" != "true" ]]; then
             TAG_NAME="${LATEST_TAG}"
         else
