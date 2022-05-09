@@ -5,12 +5,16 @@ inputs:
   node-version:
     description: Version of Node to use
     required: false
-  validate-package-directory:
+  package-directory:
     description: |
-      Call the js/validate action forwarding this parameter as package-directory.
-      Explicitly pass an empty string '' to skip validation.
+      Directory containing the package.json file dictating what to test.
+      Also calls js/validate action forwarding this parameter as package-directory.
     required: false
     default: .
+  skip-validation:
+    description: Whether to run the validation action
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -19,6 +23,9 @@ runs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.node-version }}
+    - name: Set working directory
+      shell: bash -l {0}
+      run: cd ${{ inputs.package-directory }}
     - name: Install
       shell: bash -l {0}
       run: npm install
@@ -29,8 +36,8 @@ runs:
       shell: bash -l {0}
       run: npm test
     - name: Validate
-      if: inputs.validate-package-directory != ''
+      if: inputs.skip-validation != 'false'
       uses: ./actions/js/validate
       with:
-        package-directory: ${{ inputs.validate-package-directory }}
+        package-directory: ${{ inputs.package-directory }}
 

@@ -20,6 +20,11 @@ inputs:
     description: Publish tag and release before publishing to NPM
     required: true
     default: 'true'
+  package-directory:
+    description: |
+      Directory containing the package.json file dictating what to publish
+    required: false
+    default: .
 
 runs:
   using: composite
@@ -30,6 +35,9 @@ runs:
         node-version: ${{ inputs.node-version }}
         registry-url: https://registry.npmjs.org
         always-auth: true
+    - name: Set working directory
+      shell: bash -l {0}
+      run: cd ${{ inputs.package-directory }}
     - name: Install
       shell: bash -l {0}
       run: npm install
