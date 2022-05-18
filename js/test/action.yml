@@ -5,6 +5,10 @@ inputs:
   node-version:
     description: Version of Node to use
     required: false
+  install-meteor:
+    description: Whether or not to install meteor in npm globals
+    required: false
+    default: 'false'
   package-directory:
     description: |
       Directory containing the package.json file dictating what to test.
@@ -23,6 +27,10 @@ runs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.node-version }}
+    - name: Install meteor
+      shell: bash -l {0}
+      if: inputs.install-meteor == 'true'
+      run: npm install -g meteor
     - name: Install
       shell: bash -l {0}
       run: cd ${{ inputs.package-directory }} && npm install
