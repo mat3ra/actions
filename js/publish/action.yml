@@ -25,6 +25,9 @@ inputs:
       Directory containing the package.json file dictating what to publish
     required: false
     default: .
+  is-public:
+    description: if true, publish to a public NPM repository
+    default: 'true'
 
 runs:
   using: composite
@@ -83,7 +86,11 @@ runs:
       run: |
         echo "tag name: ${{ steps.get-tag-name.outputs.tag-name }}"
         npm --no-git-tag-version version "${{ steps.get-tag-name.outputs.tag-name }}"
-        npm publish
+        if [[ "${{ inputs.is-public }}" == "true" ]]; then
+          npm publish --access public
+        else
+          npm publish
+        fi
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
 
