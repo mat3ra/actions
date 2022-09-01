@@ -9,6 +9,10 @@ inputs:
     description: Whether or not to install meteor in npm globals
     required: false
     default: 'false'
+  install-chromedriver:
+    description: Whether or not to install chromedriver
+    required: false
+    default: 'false'
   package-directory:
     description: |
       Directory containing the package.json file dictating what to test.
@@ -34,6 +38,11 @@ runs:
     - name: Install
       shell: bash -l {0}
       run: cd ${{ inputs.package-directory }} && npm install
+    - name: Install ChromeDriver
+      shell: bash -l {0}
+      if: inputs.install-chromedriver == 'true'
+      # This is driver for ubuntu-latest browser: 104.0.5112.101 with binary path /usr/bin/google-chrome
+      run: npm install chromedriver@104.0.0
     - name: Build
       shell: bash -l {0}
       run: cd ${{ inputs.package-directory }} && npm run build --if-present
