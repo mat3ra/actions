@@ -15,12 +15,13 @@ runs:
     # yamllint enable rule:line-length
     # for more details and git configuration tips for managing this installation pattern
     # TODO : Add eslint --check // prettier --check // test-coverage --check
+    # NOTE: we ignore `git+https://github.com/Exabyte-io/simpl-schema`
     - name: Validate package.json
       shell: bash -l {0}
       run: |
         PKG_JSON=${{ inputs.package-directory }}/package.json
         for invalid in "git:" "git+ssh:" "git+http:" "git+https:" "file:"; do
-          if grep -q "${invalid}" ${PKG_JSON}; then
+          if grep -v "simpl-schema" ${PKG_JSON} | grep -q "${invalid}"; then
             echo "Found ${invalid} in package.json, please publish upstream package."
             echo "Then update ${{ inputs.package-directory }}/package.json."
             exit 1
