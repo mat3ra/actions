@@ -29,4 +29,7 @@ runs:
             echo "Found no ${invalid} references in package.json"
           fi
         done
-
+    - name: Validate codebase with eslint
+      shell: bash -l {0}
+      run: |
+        npm run lint
