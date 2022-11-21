@@ -6,6 +6,10 @@ inputs:
     description: Relative directory of the package.json file
     required: false
     default: .
+  skip-eslint:
+    description: Whether to run the eslint action
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -30,7 +34,7 @@ runs:
           fi
         done
     - name: Validate codebase with eslint
-      if: inputs.skip-eslint != 'false'
+      if: inputs.skip-eslint != 'true'
       shell: bash -l {0}
       run: |
         npm ci
