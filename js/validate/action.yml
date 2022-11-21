@@ -1,6 +1,6 @@
 ---
 
-name: Validate JS Packages
+name: Validate JS Packages and Codebase
 inputs:
   package-directory:
     description: Relative directory of the package.json file
@@ -30,6 +30,7 @@ runs:
           fi
         done
     - name: Validate codebase with eslint
+      if: inputs.skip-eslint != 'false'
       shell: bash -l {0}
       run: |
         npm ci
