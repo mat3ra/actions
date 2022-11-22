@@ -16,8 +16,11 @@ inputs:
   chromedriver-version:
     description: Chromedriver version to be installed
     required: false
-    # This is driver for ubuntu-latest browser: 104.0.5112.101 by default with binary path /usr/bin/google-chrome
+    # This is driver for ubuntu-latest browser:
+    # 104.0.5112.101 by default with binary path /usr/bin/google-chrome
+    # yamllint disable rule:quoted-strings
     default: '104.0.0'
+    # yamllint enable rule:quoted-strings
   package-directory:
     description: |
       Directory containing the package.json file dictating what to test.
@@ -28,6 +31,10 @@ inputs:
     description: Whether to run the validation action
     required: false
     default: 'false'
+  meteor-version:
+    description: Meteor version to be installed globally
+    required: false
+    default: 2.7.3
 
 runs:
   using: composite
@@ -39,14 +46,16 @@ runs:
     - name: Install meteor
       shell: bash -l {0}
       if: inputs.install-meteor == 'true'
-      run: npm install -g meteor
+      run: npm install -g meteor@${{ inputs.meteor-version }}
     - name: Install
       shell: bash -l {0}
       run: cd ${{ inputs.package-directory }} && npm install
     - name: Install ChromeDriver
       shell: bash -l {0}
       if: inputs.install-chromedriver == 'true'
+      # yamllint disable rule:line-length
       run: cd ${{ inputs.package-directory }} && npm install chromedriver@${{ inputs.chromedriver-version }}
+      # yamllint enable rule:line-length
     - name: Build
       shell: bash -l {0}
       run: cd ${{ inputs.package-directory }} && npm run build --if-present

@@ -1,11 +1,15 @@
 ---
 
-name: Validate JS Packages
+name: Validate JS Packages and Codebase
 inputs:
   package-directory:
     description: Relative directory of the package.json file
     required: false
     default: .
+  skip-eslint:
+    description: Whether to run the eslint action
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -29,4 +33,9 @@ runs:
             echo "Found no ${invalid} references in package.json"
           fi
         done
-
+    - name: Validate codebase with eslint
+      if: inputs.skip-eslint != 'true'
+      shell: bash -l {0}
+      run: |
+        npm ci
+        npm run lint
