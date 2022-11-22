@@ -2,6 +2,9 @@
 
 name: Validate JS Packages and Codebase
 inputs:
+  node-version:
+    description: Version of Node to use
+    required: false
   package-directory:
     description: Relative directory of the package.json file
     required: false
@@ -33,6 +36,10 @@ runs:
             echo "Found no ${invalid} references in package.json"
           fi
         done
+    - name: Setup NodeJS
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node-version }}
     - name: Validate codebase with eslint
       if: inputs.skip-eslint != 'true'
       shell: bash -l {0}
