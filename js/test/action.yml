@@ -31,6 +31,10 @@ inputs:
     description: Whether to run the validation action
     required: false
     default: 'false'
+  meteor-version:
+    description: Meteor version to be installed globally
+    required: false
+    default: 2.7.3
 
 runs:
   using: composite
@@ -42,7 +46,7 @@ runs:
     - name: Install meteor
       shell: bash -l {0}
       if: inputs.install-meteor == 'true'
-      run: npm install -g meteor@2.7.3
+      run: npm install -g meteor@${{ inputs.meteor-version }}
     - name: Install
       shell: bash -l {0}
       run: cd ${{ inputs.package-directory }} && npm install
