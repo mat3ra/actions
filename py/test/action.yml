@@ -17,6 +17,14 @@ inputs:
     description: Path to a script that runs tests
     required: false
     default: ''
+  aws-access-key-id:
+    description: AWS access key id
+    required: false
+    default: ''
+  aws-secret-access-key:
+    description: AWS secret access key
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -40,6 +48,12 @@ runs:
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
+      # yamllint enable rule:line-length
+    - name: Export AWS id and secret
+      if: (inputs.aws-access-key-id != '') && (inputs.aws-secret-access-key != '')
+      shell: bash -l {0}
+      # yamllint disable rule:line-length
+      run: export AWS_ACCESS_KEY_ID=${{ inputs.aws-access-key-id }} && export AWS_SECRET_ACCESS_KEY=${{ inputs.aws-secret-access-key }}
       # yamllint enable rule:line-length
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
