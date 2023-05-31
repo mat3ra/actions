@@ -53,23 +53,12 @@ runs:
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
       # yamllint enable rule:line-length
 
-    - name: Export AWS id
-      if: (inputs.aws-access-key-id != '')
-      shell: bash -l {0}
-      # yamllint disable rule:line-length
-      run: echo AWS_ACCESS_KEY_ID=${{ inputs.aws-access-key-id }} >> "$GITHUB_ENV"
-      # yamllint enable rule:line-length
-
-    - name: Export AWS secret
-      if: (inputs.aws-secret-access-key != '')
-      shell: bash -l {0}
-      # yamllint disable rule:line-length
-      run: echo AWS_SECRET_ACCESS_KEY=${{ inputs.aws-secret-access-key }} >> "$GITHUB_ENV"
-      # yamllint enable rule:line-length
-
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
       # yamllint enable rule:line-length
