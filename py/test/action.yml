@@ -20,44 +20,42 @@ inputs:
     description: AWS access key id
     required: false
     default: ''
-
   aws-secret-access-key:
     description: AWS secret access key
     required: false
     default: ''
+  aws-region:
+    description: AWS region to use
+    required: false
+    default: us-west-2
 
+  az-tenant-id:
+    description: Azure tenant id
+    required: false
+    default: ''
+  az-subscription-id:
+    description: Azure subscription id
+    required: false
+    default: ''
   az-client-id:
     description: Azure client id
     required: false
     default: ''
-
   az-client-secret:
     description: Azure client secret
     required: false
     default: ''
-
   az-storage-name:
     description: Azure storage name
     required: false
     default: ''
-
   az-storage-key:
     description: Azure storage key
     required: false
     default: ''
 
-  gc-project-id:
-    description: Google Cloud project id
-    required: false
-    default: ''
-
-  gc-service-account-id:
-    description: Google Cloud service account id
-    required: false
-    default: ''
-
-  gc-service-account-secret:
-    description: Google Cloud service account rsa private key
+  gc-credentials:
+    description: Google Cloud credentials JSON
     required: false
     default: ''
     
@@ -93,19 +91,32 @@ runs:
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
       # yamllint enable rule:line-length
 
+    - name: Configure AWS credentials
+      if: inputs.integration-test-directory != ''
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: Configure Azure credentials
+      if: inputs.integration-test-directory != ''
+      uses: Azure/login@v1
+      with:
+        creds: '{"clientId":"${{ inputs.az-client-id }}","clientSecret":"${{ inputs.az-client-secret }}","subscriptionId":"${{ inputs.az-subscription-id }}","tenantId":"${{ inputs.az-tenant-id }}"}'
+
+    - name: Configure Google Cloud credentials
+      if: inputs.integration-test-directory != ''
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: ${{ inputs.gc-credentials }}
+
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
       env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AZ_CLIENT_ID: ${{ inputs.az-client-id }}
-        AZ_CLIENT_SECRET: ${{ inputs.az-client-secret}}
         AZ_STORAGE_NAME: ${{ inputs.az-storage-name}}
         AZ_STORAGE_KEY: ${{ inputs.az-storage-key}}
-        GC_PROJECT_ID: ${{ inputs.gc-project-id }}
-        GC_SERVICE_ACCOUNT_ID: ${{ inputs.gc-service-account-id }}
-        GC_SERVICE_ACCOUNT_SECRET: ${{ inputs.gc-service-account-secret }}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
       # yamllint enable rule:line-length
