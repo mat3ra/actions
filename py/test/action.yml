@@ -5,22 +5,47 @@ inputs:
   python-version:
     description: Version of Python to use
     required: true
+
   unit-test-directory:
     description: Path to unit tests
     required: false
     default: ''
+
   integration-test-directory:
     description: Path to integration tests
     required: false
     default: ''
+
   aws-access-key-id:
     description: AWS access key id
     required: false
     default: ''
+
   aws-secret-access-key:
     description: AWS secret access key
     required: false
     default: ''
+
+  az-client-id:
+    description: Azure client id
+    required: false
+    default: ''
+
+  az-client-secret:
+    description: Azure client secret
+    required: false
+    default: ''
+
+  az-storage-name:
+    description: Azure storage name
+    required: false
+    default: ''
+
+  az-storage-key:
+    description: Azure storage key
+    required: false
+    default: ''
+    
   test-script:
     description: Path to a script that runs tests
     required: false
@@ -59,6 +84,10 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AZ_CLIENT_ID: ${{ inputs.az-client-id }}
+        AZ_CLIENT_SECRET: ${{ inputs.az-client-secret}}
+        AZ_STORAGE_NAME: ${{ inputs.az-storage-name}}
+        AZ_STORAGE_KEY: ${{ inputs.az-storage-key}}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
       # yamllint enable rule:line-length
