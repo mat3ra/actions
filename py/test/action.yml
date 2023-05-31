@@ -27,7 +27,7 @@ inputs:
   aws-region:
     description: AWS region to use
     required: false
-    default: us-west-2
+    default: us-east-1
 
   az-tenant-id:
     description: Azure tenant id
