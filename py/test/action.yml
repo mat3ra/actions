@@ -13,16 +13,16 @@ inputs:
     description: Path to integration tests
     required: false
     default: ''
-  test-script:
-    description: Path to a script that runs tests
-    required: false
-    default: ''
   aws-access-key-id:
     description: AWS access key id
     required: false
     default: ''
   aws-secret-access-key:
     description: AWS secret access key
+    required: false
+    default: ''
+  test-script:
+    description: Path to a script that runs tests
     required: false
     default: ''
 
@@ -33,8 +33,10 @@ runs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ inputs.python-version }}
+
     - name: Setup Python Environment
       uses: ./actions/py/env
+
     - name: Install dependencies
       shell: bash -l {0}
       run: |
@@ -43,24 +45,35 @@ runs:
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
         pip install -r requirements-dev.txt
+
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
       # yamllint enable rule:line-length
-    - name: Export AWS id and secret
-      if: (inputs.aws-access-key-id != '') && (inputs.aws-secret-access-key != '')
+
+    - name: Export AWS id
+      if: (inputs.aws-access-key-id != '')
       shell: bash -l {0}
       # yamllint disable rule:line-length
-      run: export AWS_ACCESS_KEY_ID=${{ inputs.aws-access-key-id }} && export AWS_SECRET_ACCESS_KEY=${{ inputs.aws-secret-access-key }}
+      run: echo AWS_ACCESS_KEY_ID=${{ inputs.aws-access-key-id }} >> "$GITHUB_ENV"
       # yamllint enable rule:line-length
+
+    - name: Export AWS secret
+      if: (inputs.aws-secret-access-key != '')
+      shell: bash -l {0}
+      # yamllint disable rule:line-length
+      run: echo AWS_SECRET_ACCESS_KEY=${{ inputs.aws-secret-access-key }} >> "$GITHUB_ENV"
+      # yamllint enable rule:line-length
+
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
       # yamllint enable rule:line-length
+
     - name: Run scripted tests
       if: inputs.test-script != ''
       shell: bash -l {0}
