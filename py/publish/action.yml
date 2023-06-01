@@ -11,10 +11,12 @@ inputs:
     required: true
   pypi-username:
     description: Username on PyPI
-    required: true
+    required: false
+    default: ''
   pypi-password:
     description: Password of PyPI user
-    required: true
+    required: false
+    default: ''
   publish-tag:
     description: Publish tag and release before publishing to PyPI
     required: true
@@ -62,6 +64,7 @@ runs:
       shell: bash -l {0}
       run: python -m build
     - name: Publish Package
+      if: inputs.pypi-username != '' && inputs.pypi-password != ''
       shell: bash -l {0}
       run: twine upload dist/*
       env:
