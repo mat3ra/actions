@@ -115,6 +115,10 @@ runs:
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
       env:
+        AZ_TENANT_ID: ${{ inputs.az-tenant-id }}
+        AZ_SUBSCRIPTION_ID: ${{ inputs.az-subscription-id }}
+        AZ_CLIENT_ID: ${{ inputs.az-client-id }}
+        AZ_CLIENT_SECRET: ${{ inputs.az-client-secret}}
         AZ_STORAGE_NAME: ${{ inputs.az-storage-name}}
         AZ_STORAGE_KEY: ${{ inputs.az-storage-key}}
       # yamllint disable rule:line-length
