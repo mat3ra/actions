@@ -99,11 +99,11 @@ runs:
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
         aws-region: ${{ inputs.aws-region }}
 
-    - name: Configure Azure credentials
-      if: inputs.integration-test-directory != ''
-      uses: Azure/login@v1
-      with:
-        creds: '{"clientId":"${{ inputs.az-client-id }}","clientSecret":"${{ inputs.az-client-secret }}","subscriptionId":"${{ inputs.az-subscription-id }}","tenantId":"${{ inputs.az-tenant-id }}"}'
+    # - name: Configure Azure credentials
+    #   if: inputs.integration-test-directory != ''
+    #   uses: Azure/login@v1
+    #   with:
+    #     creds: '{"clientId":"${{ inputs.az-client-id }}","clientSecret":"${{ inputs.az-client-secret }}","subscriptionId":"${{ inputs.az-subscription-id }}","tenantId":"${{ inputs.az-tenant-id }}"}'
 
     - name: Configure Google Cloud credentials
       if: inputs.integration-test-directory != ''
