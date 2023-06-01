@@ -31,7 +31,7 @@ runs:
           if grep -v "simpl-schema" ${PKG_JSON} | grep -q "${invalid}"; then
             echo "Found ${invalid} in package.json, please publish upstream package."
             echo "Then update ${{ inputs.package-directory }}/package.json."
-            echo "::notice file=${{ inputs.package-directory }}/package.json::Found ${invalid} in package.json."
+            echo "::notice file=${{ inputs.package-directory }}/package.json::Found ${invalid}."
           else
             echo "Found no ${invalid} references in package.json"
           fi
