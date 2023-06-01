@@ -15,49 +15,6 @@ inputs:
     description: Path to integration tests
     required: false
     default: ''
-
-  aws-access-key-id:
-    description: AWS access key id
-    required: false
-    default: ''
-  aws-secret-access-key:
-    description: AWS secret access key
-    required: false
-    default: ''
-  aws-region:
-    description: AWS region to use
-    required: false
-    default: us-east-1
-
-  az-tenant-id:
-    description: Azure tenant id
-    required: false
-    default: ''
-  az-subscription-id:
-    description: Azure subscription id
-    required: false
-    default: ''
-  az-client-id:
-    description: Azure client id
-    required: false
-    default: ''
-  az-client-secret:
-    description: Azure client secret
-    required: false
-    default: ''
-  az-storage-name:
-    description: Azure storage name
-    required: false
-    default: ''
-  az-storage-key:
-    description: Azure storage key
-    required: false
-    default: ''
-
-  gc-credentials:
-    description: Google Cloud credentials JSON
-    required: false
-    default: ''
     
   test-script:
     description: Path to a script that runs tests
@@ -91,36 +48,9 @@ runs:
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
       # yamllint enable rule:line-length
 
-    - name: Configure AWS credentials
-      if: inputs.integration-test-directory != ''
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: ${{ inputs.aws-region }}
-
-    # - name: Configure Azure credentials
-    #   if: inputs.integration-test-directory != ''
-    #   uses: Azure/login@v1
-    #   with:
-    #     creds: '{"clientId":"${{ inputs.az-client-id }}","clientSecret":"${{ inputs.az-client-secret }}","subscriptionId":"${{ inputs.az-subscription-id }}","tenantId":"${{ inputs.az-tenant-id }}"}'
-
-    - name: Configure Google Cloud credentials
-      if: inputs.integration-test-directory != ''
-      uses: 'google-github-actions/auth@v1'
-      with:
-        credentials_json: ${{ inputs.gc-credentials }}
-
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
-      env:
-        AZ_TENANT_ID: ${{ inputs.az-tenant-id }}
-        AZ_SUBSCRIPTION_ID: ${{ inputs.az-subscription-id }}
-        AZ_CLIENT_ID: ${{ inputs.az-client-id }}
-        AZ_CLIENT_SECRET: ${{ inputs.az-client-secret}}
-        AZ_STORAGE_NAME: ${{ inputs.az-storage-name}}
-        AZ_STORAGE_KEY: ${{ inputs.az-storage-key}}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
       # yamllint enable rule:line-length
