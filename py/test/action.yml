@@ -45,7 +45,11 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
-        if [ -z "${{ inputs.github-token }}" ]; then git config --global url."https://${{ inputs.github-token }}@github".insteadOf https://github; fi
+        if [ -z "${{ inputs.github-token }}" ]; then
+            git config --global url."https://${{ inputs.github-token }}@github".insteadOf https://github; 
+            git config user.name "exabyte-io-bot"
+            git config user.email "info@exabyte.io"
+        fi
         pip install -r requirements-dev.txt
 
     - name: Run unit tests
