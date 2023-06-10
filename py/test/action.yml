@@ -20,6 +20,12 @@ inputs:
     description: Path to a script that runs tests
     required: false
     default: ''
+    
+  github-token:
+    description: GitHub token to use for private repo authentication
+    required: false
+    default: ''
+    
 
 runs:
   using: composite
@@ -39,6 +45,7 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
+        if [ -z "${{ inputs.github-token }}" ]; then git config --global url."https://${{ inputs.github-token }}@github".insteadOf https://github; fi
         pip install -r requirements-dev.txt
 
     - name: Run unit tests
