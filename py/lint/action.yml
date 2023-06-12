@@ -21,4 +21,3 @@ runs:
       uses: chartboost/ruff-action@v1
       with:
         version: 0.0.270
-        args: --line-length=120
