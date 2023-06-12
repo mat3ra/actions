@@ -5,9 +5,6 @@ inputs:
   python-version:
     description: Version of Python to use
     required: true
-  source-dir:
-    description: Source directory
-    required: true
 
 runs:
   using: composite
@@ -23,6 +20,5 @@ runs:
     - name: Ruff
       uses: chartboost/ruff-action@v1
       with:
-        src: ${{ inputs.source-dir }}
         version: 0.0.270
         args: --line-length=120
