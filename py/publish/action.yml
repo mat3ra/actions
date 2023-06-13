@@ -20,6 +20,7 @@ inputs:
   publish-tag:
     description: Publish tag and release before publishing to PyPI
     required: true
+    default: 'true'
 
 runs:
   using: composite
