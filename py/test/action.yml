@@ -20,12 +20,11 @@ inputs:
     description: Path to a script that runs tests
     required: false
     default: ''
-    
+
   github-token:
     description: GitHub token to use for private repo authentication
     required: false
     default: ''
-    
 
 runs:
   using: composite

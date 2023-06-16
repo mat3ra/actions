@@ -1,0 +1,24 @@
+---
+
+name: Run Python ruff Lint
+inputs:
+  python-version:
+    description: Version of Python to use
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Setup Python Environment
+      uses: ./actions/py/env
+
+    - name: Ruff
+      uses: chartboost/ruff-action@v1
+      with:
+        version: 0.0.270
+        args: --line-length=120 --target-version=py38
