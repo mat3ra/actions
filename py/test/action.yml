@@ -56,7 +56,7 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
-        if [ ${{ inputs.no-pip-cache }} ]; then
+        if [[ "${{ inputs.no-pip-cache }}" == "true" ]]; then
           pip install --no-cache-dir -r requirements-dev.txt
         else
           pip install -r requirements-dev.txt
