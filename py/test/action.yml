@@ -21,11 +21,6 @@ inputs:
     required: false
     default: ''
 
-  github-token:
-    description: GitHub token to use for private repo authentication
-    required: false
-    default: ''
-
 runs:
   using: composite
   steps:
@@ -37,12 +32,12 @@ runs:
     - name: Setup Python Environment
       uses: ./actions/py/env
 
-    - name: Setup Git Acccess
-      if: inputs.github-token != ''
-      shell: bash -l {0}
-      run: |
-        echo "Setting up GitHub credentials"
-        git config --global url."https://${{ inputs.github-token }}@github".insteadOf https://github
+    - name: Setup ssh-agent
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: |
+          ${{ secrets.DEPLOYKEY_CAPY }}
+          ${{ secrets.DEPLOYKEY_LIBCLOUD }}
 
     - name: Install dependencies
       shell: bash -l {0}
