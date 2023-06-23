@@ -56,10 +56,10 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
-        if [ ${{ inputs.no-pip-cache }} == 'false' ]; then
-          pip install -r requirements-dev.txt
-        else
+        if [ ${{ inputs.no-pip-cache }} ]; then
           pip install --no-cache-dir -r requirements-dev.txt
+        else
+          pip install -r requirements-dev.txt
         fi
 
     - name: Run unit tests
