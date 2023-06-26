@@ -6,6 +6,10 @@ inputs:
     description: Version of Python to use
     required: true
 
+  bot-ssh-key:
+    description: GitHub bot SSH private key
+    required: false
+
   unit-test-directory:
     description: Path to unit tests
     required: false
@@ -35,9 +39,7 @@ runs:
     - name: Setup ssh-agent
       uses: webfactory/ssh-agent@v0.8.0
       with:
-        ssh-private-key: |
-          ${{ secrets.DEPLOYKEY_CAPY }}
-          ${{ secrets.DEPLOYKEY_LIBCLOUD }}
+        ssh-private-key: ${{ inputs.bot-ssh-key }}
 
     - name: Install dependencies
       shell: bash -l {0}
