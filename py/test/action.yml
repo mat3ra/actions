@@ -9,6 +9,7 @@ inputs:
   bot-ssh-key:
     description: GitHub bot SSH private key
     required: false
+    default: ''
 
   unit-test-directory:
     description: Path to unit tests
@@ -37,6 +38,7 @@ runs:
       uses: ./actions/py/env
 
     - name: Setup ssh-agent
+      if: inputs.bot-ssh-key != ''
       uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ inputs.bot-ssh-key }}
