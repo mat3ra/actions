@@ -50,7 +50,7 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
-        pip install -r requirements-dev.txt
+        pip install -r requirements.txt
 
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
