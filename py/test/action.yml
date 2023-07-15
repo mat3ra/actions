@@ -29,7 +29,7 @@ inputs:
   requirements-file-basename:
     description: Basename of the requirements file
     required: false
-    default: 'requirements.txt'
+    default: requirements.txt
 
 
 runs:
