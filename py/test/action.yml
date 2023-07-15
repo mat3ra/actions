@@ -26,6 +26,12 @@ inputs:
     required: false
     default: ''
 
+  requirements-file-basename:
+    description: Basename of the requirements file
+    required: false
+    default: requirements.txt
+
+
 runs:
   using: composite
   steps:
@@ -50,7 +56,7 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
-        pip install -r requirements-dev.txt
+        pip install -r ${{ inputs.requirements-file-basename }}
 
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
