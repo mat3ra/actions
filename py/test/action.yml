@@ -55,7 +55,7 @@ runs:
       run: |
         sed -i 's;git+file:///stack/lib/;git+ssh://git@github.com/Exabyte-io/exabyte-;g' \
           ${{ inputs.requirements-file-basename }}
-        sed -i 's;git+file:///stack/lib/exalibcloud;git+ssh://git@github.com/Exabyte-io/exabyte-libcloud;g' \
+        sed -i 's/exabyte-exalibcloud/exabyte-libcloud/g' \
           ${{ inputs.requirements-file-basename }}
       # special case for exabyte-libcloud due to repo name/submodule name mismatch
 
