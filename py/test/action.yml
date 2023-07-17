@@ -49,6 +49,16 @@ runs:
       with:
         ssh-private-key: ${{ inputs.bot-ssh-key }}
 
+    - name: Replace git+file with git+ssh
+      if: inputs.bot-ssh-key != ''
+      shell: bash -l {0}
+      run: |
+        sed -i 's;git+file:///stack/lib/;git+ssh://git@github.com/Exabyte-io/exabyte-;g' \
+          ${{ inputs.requirements-file-basename }}
+        sed -i 's/exabyte-exalibcloud/exabyte-libcloud/g' \
+          ${{ inputs.requirements-file-basename }}
+      # special case for exabyte-libcloud due to repo name/submodule name mismatch
+
     - name: Install dependencies
       shell: bash -l {0}
       run: |
