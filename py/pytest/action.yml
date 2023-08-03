@@ -1,0 +1,68 @@
+---
+
+name: Run python tests using pytest
+inputs:
+  python-version:
+    description: Version of Python to use
+    required: true
+
+  bot-ssh-key:
+    description: GitHub bot SSH private key
+    required: false
+    default: ''
+
+  unit-test-directory:
+    description: Path to unit tests
+    required: false
+    default: ''
+
+  integration-test-directory:
+    description: Path to integration tests
+    required: false
+    default: ''
+
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Setup Python Environment
+      uses: ./actions/py/env
+
+    - name: Setup ssh-agent
+      if: inputs.bot-ssh-key != ''
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ inputs.bot-ssh-key }}
+
+    - name: Replace "git+file" with "git+ssh" in requirements
+      if: inputs.bot-ssh-key != ''
+      shell: bash -l {0}
+      run: |
+        sed -i 's;git+file:///stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
+          ${{ inputs.requirements-file-basename }}
+
+    - name: Install dependencies
+      shell: bash -l {0}
+      run: python3 -m pip install -e ".[tests]"
+
+    - name: Run unit tests
+      if: inputs.unit-test-directory != ''
+      shell: bash -l {0}
+      run: |
+        python3 -m pytest --cov=src/ --cov-report term --cov-report=xml --cov-append \
+        ${{ inputs.unit-test-directory }}
+
+    - name: Run integration tests
+      if: inputs.integration-test-directory != ''
+      shell: bash -l {0}
+      run: |
+        python3 -m pytest --cov=src/ --cov-report term --cov-report=xml --cov-append \
+        ${{ inputs.integration-test-directory }}
+
+      # - name: Upload coverage report
+      #   uses: codecov/codecov-action@v3
