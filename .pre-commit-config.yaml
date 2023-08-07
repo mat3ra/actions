@@ -1,0 +1,9 @@
+---
+
+repos:
+  - repo: https://github.com/Exabyte-io/pre-commit-hooks
+    rev: 2023.6.28
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
