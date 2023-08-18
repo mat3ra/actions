@@ -21,6 +21,10 @@ inputs:
     required: false
     default: ''
 
+  requirements-file-basename:
+    description: Basename of the requirements file
+    required: false
+    default: requirements.txt
 
 runs:
   using: composite
