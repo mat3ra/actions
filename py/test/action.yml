@@ -63,7 +63,12 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
-        pip install -r ${{ inputs.requirements-file-basename }}
+        # Prioritize requirements.txt file if present, or use pyproject.toml (".[tests]")
+        if [ -f "${{ inputs.requirements-file-basename }}" ]; then
+          pip install -r ${{ inputs.requirements-file-basename }}
+        else
+          pip install ".[tests]"
+        fi
 
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
