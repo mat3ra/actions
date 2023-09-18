@@ -31,6 +31,15 @@ inputs:
     required: false
     default: requirements.txt
 
+  is_pyproject:
+    description: Build virtualenv from pyproject.toml file
+    required: false
+    default: 'false'
+
+  is_pytest:
+    description: Use pytest instead of unittest
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -49,14 +58,16 @@ runs:
       with:
         ssh-private-key: ${{ inputs.bot-ssh-key }}
 
+# Install dependencies if using requirements.txt
     - name: Replace "git+file" with "git+ssh" in requirements
-      if: inputs.bot-ssh-key != ''
+      if: inputs.bot-ssh-key != '' && inputs.is_pyproject == 'false'
       shell: bash -l {0}
       run: |
         sed -i 's;git+file:///stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
           ${{ inputs.requirements-file-basename }}
 
     - name: Install dependencies
+      if: inputs.is_pyproject == 'false'
       shell: bash -l {0}
       run: |
         python -m pip install \
@@ -65,19 +76,51 @@ runs:
           wheel==${WHEEL_VERSION}
         pip install -r ${{ inputs.requirements-file-basename }}
 
-    - name: Run unit tests
-      if: inputs.unit-test-directory != ''
+# Install dependencies if using pyproject.toml
+    - name: Replace "git+file" with "git+ssh" in pyproject.toml
+      if: inputs.bot-ssh-key != '' && inputs.is_pyproject == 'true'
+      shell: bash -l {0]
+      run: |
+        sed -i 's;git+file://./stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
+          pyproject.toml
+
+    - name: Install dependencies
+      if: inputs.is_pyproject == 'true'
+      shell: bash -l {0}
+      run: python3 -m pip install -e ".[tests]"
+
+
+# Run tests with unittest
+    - name: Run unit tests with unittest
+      if: inputs.unit-test-directory != '' && inputs.is_pytest == 'false'
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
       # yamllint enable rule:line-length
 
     - name: Run integration tests
-      if: inputs.integration-test-directory != ''
+      if: inputs.integration-test-directory != ' '&& inputs.is_pytest == 'false'
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
       # yamllint enable rule:line-length
+
+# Run tests with pytest
+    - name: Run unit tests with pytest
+      if: inputs.unit-test-directory != '' && inputs.is_pytest == 'true'
+      shell: bash -l {0}
+      run: |
+        sudo env "PATH=$PATH" python3 -m pytest \
+        --cov=src/ --cov-report term --cov-report=xml --cov-append \
+        ${{ inputs.unit-test-directory }}
+
+    - name: Run integration tests with pytest
+      if: inputs.integration-test-directory != '' && inputs.is_pytest == 'true'
+      shell: bash -l {0}
+      run: |
+        sudo env "PATH=$PATH" python3 -m pytest \
+        --cov=src/ --cov-report term --cov-report=xml --cov-append \
+        ${{ inputs.integration-test-directory }}
 
     - name: Run scripted tests
       if: inputs.test-script != ''
