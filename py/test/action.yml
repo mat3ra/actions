@@ -79,7 +79,7 @@ runs:
 # Install dependencies if using pyproject.toml
     - name: Replace "git+file" with "git+ssh" in pyproject.toml
       if: inputs.bot-ssh-key != '' && inputs.is_pyproject == 'true'
-      shell: bash -l {0]
+      shell: bash -l {0}
       run: |
         sed -i 's;git+file://./stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
           pyproject.toml
@@ -99,7 +99,7 @@ runs:
       # yamllint enable rule:line-length
 
     - name: Run integration tests
-      if: inputs.integration-test-directory != ' '&& inputs.is_pytest == 'false'
+      if: inputs.integration-test-directory != '' && inputs.is_pytest == 'false'
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
