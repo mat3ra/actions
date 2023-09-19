@@ -1,6 +1,13 @@
 ---
 
-name: Set shared variables for python workflows
+name: Set shared variables, pip config for python workflows
+inputs:
+  pypi-mat3ra-com-user:
+    required: false
+    default: ''
+  pypi-mat3ra-com-password:
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -8,3 +15,18 @@ runs:
     - name: Set Environment
       shell: bash -l {0}
       run: sed "" ./actions/py/env/env >> $GITHUB_ENV
+    - name: Set Pip Configuration File
+      if: inputs.pypi-mat3ra-com-user != '' && pypi-mat3ra-com-password != ''
+      shell: bash -l {0}
+      run: |
+        # Setup config file
+        mkdir -p /root/.pip
+        cat ./actions/py/env/pip.conf >> /root/.pip/pip.conf
+        # Setup basic authentication
+        cat > /root/.netrc << EOF
+        machine pypi.mat3ra.com
+        login ${{ inputs.pypi-mat3ra-com-user }}
+        password ${{ inputs.pypi-mat3ra-com-password }}
+        EOF
+        # Remove leading whitespace (just in case)
+        sed -i 's/^[t ]*//g' /root/.netrc
