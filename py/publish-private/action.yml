@@ -17,15 +17,15 @@ inputs:
   publish-tag:
     description: Publish tag and release before publishing to PyPI.mat3ra.com
     required: true
-    default: 'false'
+    default: false
   bucket-name:
     description: Name of the S3 bucket hosting the private PyPi
     required: false
-    default: 'pypi-mat3ra-com'
+    default: pypi-mat3ra-com
   url-prefix:
     description: Prefix under which the private repository is served
     required: false
-    default: 'simple'
+    default: simple
 
 runs:
   using: composite
