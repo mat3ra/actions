@@ -26,6 +26,10 @@ inputs:
     description: Prefix under which the private repository is served
     required: false
     default: simple
+  pypi-mat3ra-com-user:
+    required: true
+  pypi-mat3ra-com-password:
+    required: true
 
 runs:
   using: composite
@@ -53,6 +57,10 @@ runs:
         python-version: ${{ inputs.python-version }}
     - name: Setup Python Environment
       uses: ./actions/py/env
+      with:
+        pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
+        pypi-mat3ra-com-password: ${{ inputs.pypi-mat3ra-com-password }}
+
     - name: Install Dependencies
       shell: bash -l {0}
       run: |
