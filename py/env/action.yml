@@ -21,12 +21,12 @@ runs:
       run: |
         # Setup config file
         mkdir -p /root/.pip
-        cat ./actions/py/env/pip.conf >> /root/.pip/pip.conf
+        cat ./actions/py/env/pip.conf >> ~/.pip/pip.conf
         # Setup basic authentication
-        cat > /root/.netrc << EOF
+        cat > ~/.netrc << EOF
         machine pypi.mat3ra.com
         login ${{ inputs.pypi-mat3ra-com-user }}
         password ${{ inputs.pypi-mat3ra-com-password }}
         EOF
         # Remove leading whitespace (just in case)
-        sed -i 's/^[t ]*//g' /root/.netrc
+        sed -i 's/^[t ]*//g' ~/.netrc
