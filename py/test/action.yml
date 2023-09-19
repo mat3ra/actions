@@ -31,6 +31,12 @@ inputs:
     required: false
     default: requirements.txt
 
+  pypi-mat3ra-com-user:
+    required: false
+    default: ''
+  pypi-mat3ra-com-password:
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -42,6 +48,9 @@ runs:
 
     - name: Setup Python Environment
       uses: ./actions/py/env
+      with:
+        pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
+        pypi-mat3ra-com-password: ${{ inputs.pypi-mat3ra-com-password }}
 
     - name: Setup ssh-agent
       if: inputs.bot-ssh-key != ''
