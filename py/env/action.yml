@@ -16,7 +16,7 @@ runs:
       shell: bash -l {0}
       run: sed "" ./actions/py/env/env >> $GITHUB_ENV
     - name: Set Pip Configuration File
-      if: inputs.pypi-mat3ra-com-user != '' && pypi-mat3ra-com-password != ''
+      if: inputs.pypi-mat3ra-com-user != '' && inputs.pypi-mat3ra-com-password != ''
       shell: bash -l {0}
       run: |
         # Setup config file
