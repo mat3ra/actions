@@ -20,7 +20,7 @@ runs:
       shell: bash -l {0}
       run: |
         # Setup config file
-        mkdir -p /root/.pip
+        mkdir -p ~/.pip
         cat ./actions/py/env/pip.conf >> ~/.pip/pip.conf
         # Setup basic authentication
         cat > ~/.netrc << EOF
