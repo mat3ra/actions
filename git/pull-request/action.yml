@@ -14,10 +14,6 @@ inputs:
     description: name of the repository to create a PR in
     required: true
     default: ''
-  request-title:
-    description: title of the pull request
-    required: true
-    default: ''
   target-version:
     description: target version to update to
     required: true
