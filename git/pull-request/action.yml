@@ -1,0 +1,68 @@
+---
+
+name: Great a Pull Request on Github for an updated version
+inputs:
+  github-token:
+    description: grants access to github repository
+    required: true
+    default: ''
+  source-package-name:
+    description: name of the package to update the version of
+    required: true
+    default: ''
+  target-repository:
+    description: name of the repository to create a PR in
+    required: true
+    default: ''
+  request-title:
+    description: title of the pull request
+    required: true
+    default: ''
+  target-version:
+    description: target version to update to
+    required: true
+    default: ''
+  base-branch:
+    description: target branc to update
+    required: false
+    default: 'main'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout target repository
+      uses: actions/checkout@v2  # checks out actions repository
+      with:
+        repository: ${{ inputs.target-repository }}
+        token: ${{ inputs.github-token }}
+        path: ${{ inputs.repository }}
+
+    - name: Setup NodeJS
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: https://registry.npmjs.org
+        always-auth: true
+
+    - name: Replace early version(s) in package.json
+      shell: bash -l {0}
+      run: npm i ${{ inputs.source-package-name }}@${{ inputs.target-version }}
+
+    - name: Update package-lock
+      shell: bash -l {0}
+      run: npm i --package-lock-only
+
+    - name: Create git commit
+      shell: bash -l {0}
+      run: |
+        git checkout -b chore/update-${{ inputs.source-package-name }}-${{ inputs.target-version }}
+        git add -A package.json package-lock.json
+        git commit -m ${{ inputs.source-package-name }}@${{ inputs.target-version }}
+        git push
+
+    - name: Create PR
+      shell: bash -l {0}
+      run: |
+          NOTES="PR: ${{ inputs.source-package-name }}@${{ inputs.target-version }} created by exabyte-io-bot"
+          gh pr create --base ${{ inputs.base-branch }}} \
+            --title ${{ inputs.source-package-name }}@${{ inputs.target-version }} --body "${NOTES}"
