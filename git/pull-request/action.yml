@@ -21,11 +21,11 @@ inputs:
   base-branch:
     description: target branc to update
     required: false
-    default: 'main'
+    default: main
   node-version:
     description: target branc to update
     required: false
-    default: '14.20.0'
+    default: 14.20.0
 
 runs:
   using: composite
@@ -63,6 +63,8 @@ runs:
     - name: Create PR
       shell: bash -l {0}
       run: |
-          NOTES="PR: ${{ inputs.source-package-name }}@${{ inputs.target-version }} created by exabyte-io-bot"
-          gh pr create --base ${{ inputs.base-branch }}} \
-            --title ${{ inputs.source-package-name }}@${{ inputs.target-version }} --body "${NOTES}"
+          NOTES="${{ inputs.source-package-name }}@${{ inputs.target-version }} by exabyte-io-bot"
+          gh pr create \
+            --base ${{ inputs.base-branch }}} \
+            --title ${{ inputs.source-package-name }}@${{ inputs.target-version }} \
+            --body "${NOTES}"
