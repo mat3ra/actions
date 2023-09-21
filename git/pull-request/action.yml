@@ -48,6 +48,7 @@ runs:
       shell: bash -l {0}
       run: |
         echo "${{ inputs.source-package-name }}, ${{ inputs.target-repository }}, ${{ inputs.target-version }}"
+        sudo npm cache verify
         cd ${{ inputs.target-repository }}
         npm i ${{ inputs.source-package-name }}@latest
 
