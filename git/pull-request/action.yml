@@ -82,7 +82,7 @@ runs:
         cd ${{ inputs.target-repository }}
         NOTES="${{ inputs.source-package-name }}@${{ env.VERSION }} by exabyte-io-bot"
         gh pr create \
-          --base ${{ inputs.base-branch }}} \
+          --base ${{ inputs.base-branch }} \
           --title ${{ inputs.source-package-name }}@${{ env.VERSION }} \
           --body "${NOTES}"
       env:
