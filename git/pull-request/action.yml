@@ -79,3 +79,5 @@ runs:
             --base ${{ inputs.base-branch }}} \
             --title ${{ inputs.source-package-name }}@${{ env.VERSION }} \
             --body "${NOTES}"
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
