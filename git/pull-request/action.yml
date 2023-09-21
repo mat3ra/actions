@@ -46,7 +46,9 @@ runs:
 
     - name: Replace early version(s) in package.json
       shell: bash -l {0}
-      run: npm i ${{ inputs.source-package-name }}@${{ inputs.target-version }}
+      run: |
+        echo "Inputs: ${{ inputs.source-package-name }}, ${{ inputs.target-repository }}, ${{ inputs.target-version }}"
+        npm i ${{ inputs.source-package-name }}@${{ inputs.target-version }}
 
     - name: Update package-lock
       shell: bash -l {0}
