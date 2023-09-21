@@ -53,7 +53,7 @@ runs:
 
     - name: Update package-lock
       shell: bash -l {0}
-      run:
+      run: |
         cd ${{ inputs.target-repository }}
         npm i --package-lock-only
 
