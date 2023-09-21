@@ -35,7 +35,7 @@ runs:
       with:
         repository: ${{ inputs.target-repository }}
         token: ${{ inputs.github-token }}
-        path: ${{ inputs.repository }}
+        path: ${{ inputs.target-repository }}
 
     - name: Setup NodeJS
       uses: actions/setup-node@v2
@@ -48,7 +48,8 @@ runs:
       shell: bash -l {0}
       run: |
         echo "Inputs: ${{ inputs.source-package-name }}, ${{ inputs.target-repository }}, ${{ inputs.target-version }}"
-        npm i ${{ inputs.source-package-name }}@${{ inputs.target-version }}
+        cd ${{ inputs.target-repository }}
+        npm i ${{ inputs.source-package-name }}@latest
 
     - name: Update package-lock
       shell: bash -l {0}
