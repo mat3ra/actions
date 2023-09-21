@@ -60,8 +60,7 @@ runs:
       id: echo-version
       shell: bash -l {0}
       run: |
-        VERSION=`npm view express version`
-        echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+        echo "VERSION=$(npm view ${{ inputs.source-package-name }} version)" >> $GITHUB_OUTPUT
 
     - name: Create git commit
       shell: bash -l {0}
