@@ -73,6 +73,8 @@ runs:
         git add -A package.json package-lock.json
         git commit -m ${{ inputs.source-package-name }}@${{ env.VERSION }}
         git push
+        # Per https://github.com/cli/cli/issues/2691#issuecomment-1289521962
+        sleep 5
 
     - name: Create PR
       shell: bash -l {0}
