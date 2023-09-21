@@ -68,6 +68,8 @@ runs:
       shell: bash -l {0}
       run: |
         cd ${{ inputs.target-repository }}
+        git config --global user.email "info@exabyte.io"
+        git config --global user.name "exabyte-io-bot"
         git config --global --add --bool push.autoSetupRemote true
         git checkout -b chore/update-${{ inputs.source-package-name }}-${{ env.VERSION }}
         git add -A package.json package-lock.json
