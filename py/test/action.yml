@@ -31,6 +31,13 @@ inputs:
     required: false
     default: requirements.txt
 
+  pypi-mat3ra-com-user:
+    required: false
+    default: ''
+  pypi-mat3ra-com-password:
+    required: false
+    default: ''
+
   is_pyproject:
     description: Build virtualenv from pyproject.toml file
     required: false
@@ -51,6 +58,9 @@ runs:
 
     - name: Setup Python Environment
       uses: ./actions/py/env
+      with:
+        pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
+        pypi-mat3ra-com-password: ${{ inputs.pypi-mat3ra-com-password }}
 
     - name: Setup ssh-agent
       if: inputs.bot-ssh-key != ''
@@ -63,8 +73,10 @@ runs:
       if: inputs.bot-ssh-key != '' && inputs.is_pyproject == 'false'
       shell: bash -l {0}
       run: |
-        sed -i 's;git+file:///stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
-          ${{ inputs.requirements-file-basename }}
+        if [ -f "${{ inputs.requirements-file-basename }}" ]; then
+          sed -i 's;git+file:///stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
+            ${{ inputs.requirements-file-basename }}
+        fi
 
     - name: Install dependencies
       if: inputs.is_pyproject == 'false'
@@ -74,25 +86,15 @@ runs:
           pip==${PIP_VERSION} \
           setuptools==${SETUPTOOLS_VERSION} \
           wheel==${WHEEL_VERSION}
-        pip install -r ${{ inputs.requirements-file-basename }}
+        # Prioritize requirements.txt file if present, or use pyproject.toml (".[tests]")
+        if [ -f "${{ inputs.requirements-file-basename }}" ]; then
+          pip install -r ${{ inputs.requirements-file-basename }}
+        else
+          pip install ".[tests]"
+        fi
 
-# Install dependencies if using pyproject.toml
-    - name: Replace "git+file" with "git+ssh" in pyproject.toml
-      if: inputs.bot-ssh-key != '' && inputs.is_pyproject == 'true'
-      shell: bash -l {0}
-      run: |
-        sed -i 's;git+file://./stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
-          pyproject.toml
-
-    - name: Install dependencies
-      if: inputs.is_pyproject == 'true'
-      shell: bash -l {0}
-      run: python3 -m pip install -e ".[tests]"
-
-
-# Run tests with unittest
-    - name: Run unit tests with unittest
-      if: inputs.unit-test-directory != '' && inputs.is_pytest == 'false'
+    - name: Run unit tests
+      if: inputs.unit-test-directory != ''
       shell: bash -l {0}
       # yamllint disable rule:line-length
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}

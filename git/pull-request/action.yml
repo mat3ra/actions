@@ -1,0 +1,92 @@
+---
+
+name: Great a Pull Request on Github for an updated version
+inputs:
+  github-token:
+    description: grants access to github repository
+    required: true
+    default: ''
+  source-package-name:
+    description: name of the package to update the version of
+    required: true
+    default: ''
+  target-repository:
+    description: name of the repository to create a PR in
+    required: true
+    default: ''
+  target-version:
+    description: target version to update to
+    required: true
+    default: ''
+  base-branch:
+    description: target branc to update
+    required: false
+    default: main
+  node-version:
+    description: target branc to update
+    required: false
+    default: 14.20.0
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout target repository
+      uses: actions/checkout@v2  # checks out actions repository
+      with:
+        repository: ${{ inputs.target-repository }}
+        token: ${{ inputs.github-token }}
+        path: ${{ inputs.target-repository }}
+
+    - name: Setup NodeJS
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: https://registry.npmjs.org
+        always-auth: true
+
+    - name: Replace early version(s) in package.json
+      shell: bash -l {0}
+      run: |
+        echo "${{ inputs.source-package-name }}, ${{ inputs.target-repository }}, ${{ inputs.target-version }}"
+        sudo npm cache verify
+        cd ${{ inputs.target-repository }}
+        npm i ${{ inputs.source-package-name }}@latest
+
+    - name: Update package-lock
+      shell: bash -l {0}
+      run: |
+        cd ${{ inputs.target-repository }}
+        npm i --package-lock-only
+
+    # TODO: figure out how to pass version as a result of the publish job instead
+    - name: Echo version
+      id: echo-version
+      shell: bash -l {0}
+      run: |
+        echo "VERSION=$(npm view ${{ inputs.source-package-name }} version)" >> $GITHUB_ENV
+
+    - name: Create git commit
+      shell: bash -l {0}
+      run: |
+        cd ${{ inputs.target-repository }}
+        git config --global user.email "info@exabyte.io"
+        git config --global user.name "exabyte-io-bot"
+        git config --global --add --bool push.autoSetupRemote true
+        git checkout -b chore/update-${{ inputs.source-package-name }}-${{ env.VERSION }}
+        git add -A package.json package-lock.json
+        git commit -m ${{ inputs.source-package-name }}@${{ env.VERSION }}
+        git push
+        # Per https://github.com/cli/cli/issues/2691#issuecomment-1289521962
+        sleep 5
+
+    - name: Create PR
+      shell: bash -l {0}
+      run: |
+        cd ${{ inputs.target-repository }}
+        NOTES="${{ inputs.source-package-name }}@${{ env.VERSION }} by exabyte-io-bot"
+        gh pr create \
+          --base ${{ inputs.base-branch }} \
+          --title ${{ inputs.source-package-name }}@${{ env.VERSION }} \
+          --body "${NOTES}"
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}

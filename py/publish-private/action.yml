@@ -1,0 +1,85 @@
+---
+name: Publish Git Release and Python Package to the private registry
+description: Publishes a new version of a python package to pypi.mat3ra.com
+inputs:
+  python-version:
+    description: Version of Python to use
+    required: true
+  github-token:
+    description: Grants access to publish releases to github
+    required: true
+  aws-access-key-id:
+    description: AWS access key ID
+    required: true
+  aws-secret-access-key:
+    description: AWS secret key
+    required: true
+  publish-tag:
+    description: Publish tag and release before publishing to PyPI.mat3ra.com
+    required: true
+    default: false
+  bucket-name:
+    description: Name of the S3 bucket hosting the private PyPi
+    required: false
+    default: pypi-mat3ra-com
+  url-prefix:
+    description: Prefix under which the private repository is served
+    required: false
+    default: simple
+  pypi-mat3ra-com-user:
+    required: true
+  pypi-mat3ra-com-password:
+    required: true
+
+runs:
+  using: composite
+  steps:
+
+    - name: Configure Repository
+      uses: ./actions/git/config
+      with:
+        github-token: ${{ inputs.github-token }}
+    - name: Determine git tag
+      id: get-tag-name
+      uses: ./actions/git/version
+      with:
+        create-new-tag: ${{ inputs.publish-tag }}
+    - name: Publish new git tag and release
+      if: inputs.publish-tag == 'true'
+      uses: ./actions/git/release
+      with:
+        github-token: ${{ inputs.github-token }}
+        tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
+
+    - name: Setup Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Setup Python Environment
+      uses: ./actions/py/env
+      with:
+        pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
+        pypi-mat3ra-com-password: ${{ inputs.pypi-mat3ra-com-password }}
+
+    - name: Install Dependencies
+      shell: bash -l {0}
+      run: |
+        python -m pip install \
+          pip==${PIP_VERSION} \
+          build==${BUILD_VERSION} \
+          virtualenv==20.24.5 \
+          s3pypi==1.1.1
+    - name: Debug git repository
+      shell: bash -l {0}
+      run: |
+        git log -n 1
+        git status
+    - name: Build Package
+      shell: bash -l {0}
+      run: python -m build
+    - name: Publish Package
+      shell: bash -l {0}
+      run: s3pypi dist/* --bucket ${{ inputs.bucket-name }} --prefix ${{ inputs.url-prefix }}
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
