@@ -63,7 +63,6 @@ runs:
       with:
         ssh-private-key: ${{ inputs.bot-ssh-key }}
 
-# Install dependencies if using requirements.txt
     - name: Replace "git+file" with "git+ssh" in requirements
       if: inputs.bot-ssh-key != ''
       shell: bash -l {0}
@@ -101,7 +100,6 @@ runs:
       run: python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
       # yamllint enable rule:line-length
 
-# Run tests with pytest
     - name: Run unit tests with pytest
       if: inputs.unit-test-directory != '' && inputs.is_pytest == 'true'
       shell: bash -l {0}

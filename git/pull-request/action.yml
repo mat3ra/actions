@@ -46,11 +46,14 @@ runs:
 
     - name: Replace early version(s) in package.json
       shell: bash -l {0}
+      # yamllint disable rule:line-length
       run: |
         echo "${{ inputs.source-package-name }}, ${{ inputs.target-repository }}, ${{ inputs.target-version }}"
         sudo npm cache verify
         cd ${{ inputs.target-repository }}
         npm i ${{ inputs.source-package-name }}@latest
+      # yamllint enable rule:line-length
+
 
     - name: Update package-lock
       shell: bash -l {0}
