@@ -54,7 +54,18 @@ runs:
       shell: bash -l {0}
       if: inputs.install-chromedriver == 'true'
       # yamllint disable rule:line-length
-      run: cd ${{ inputs.package-directory }} && npm install chromedriver@${{ inputs.chromedriver-version }}
+      run: |
+        echo "Attempting to get match Chrome and Chromedriver versions"
+        # Should get the main version per https://askubuntu.com/questions/505531/what-version-of-google-chrome-do-i-have
+        CHROME_MAIN_VERSION=`google-chrome --version | grep -iEo "[0-9]{1,4}.[0-9]{1,3}" | head -1`
+        if [[ $CHROME_MAIN_VERSION == "" ]]; then
+          CHROMEDRIVER_VERSION="{{ inputs.chromedriver-version }}";
+          echo "Set Chrome Version from input to $CHROMEDRIVER_VERSION"
+        else 
+          CHROMEDRIVER_VERSION="$CHROME_MAIN_VERSION".0
+          echo "Set Chrome Version from OS to $CHROMEDRIVER_VERSION"
+        fi
+        cd ${{ inputs.package-directory }} && npm install chromedriver@${CHROMEDRIVER_VERSION}
       # yamllint enable rule:line-length
     - name: Build
       shell: bash -l {0}
