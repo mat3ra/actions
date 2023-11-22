@@ -84,7 +84,7 @@ runs:
       run: |
         cd ${{ inputs.target-repository }}
         # set default branch name
-        if ! git rev-parse --verify main; then
+        if git rev-parse --verify main; then
           DEFAULT_BRANCH="main"
         else
           DEFAULT_BRANCH="dev"
