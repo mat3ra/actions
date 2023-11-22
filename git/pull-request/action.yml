@@ -83,8 +83,12 @@ runs:
       shell: bash -l {0}
       run: |
         cd ${{ inputs.target-repository }}
-        # per https://stackoverflow.com/questions/28666357/how-to-get-default-git-branch
-        DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+        # set default branch name
+        if ! git rev-parse --verify main; then
+          DEFAULT_BRANCH="main"
+        else
+          DEFAULT_BRANCH="dev"
+        fi
         echo "Default Branch is ${DEFAULT_BRANCH}"
         NOTES="${{ inputs.source-package-name }}@${{ env.VERSION }} by exabyte-io-bot"
         gh pr create \
