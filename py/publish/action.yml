@@ -21,6 +21,10 @@ inputs:
     description: Publish tag and release before publishing to PyPI
     required: true
     default: 'true'
+  publish-to-pypi:
+    description: Whether to only publish as a GitHub release
+    required: true
+    default: 'true'
 
 runs:
   using: composite
@@ -43,15 +47,15 @@ runs:
         tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
 
     - name: Setup Python ${{ inputs.python-version }}
-      if: inputs.pypi-username != '' && inputs.pypi-password != ''
+      if: inputs.pypi-username != '' && inputs.pypi-password != '' && inputs.publish-to-pypi != 'true'
       uses: actions/setup-python@v2
       with:
         python-version: ${{ inputs.python-version }}
     - name: Setup Python Environment
-      if: inputs.pypi-username != '' && inputs.pypi-password != ''
+      if: inputs.pypi-username != '' && inputs.pypi-password != '' && inputs.publish-to-pypi != 'true'
       uses: ./actions/py/env
     - name: Install Dependencies
-      if: inputs.pypi-username != '' && inputs.pypi-password != ''
+      if: inputs.pypi-username != '' && inputs.pypi-password != '' && inputs.publish-to-pypi != 'true'
       shell: bash -l {0}
       run: |
         python -m pip install \
@@ -59,17 +63,17 @@ runs:
           build==${BUILD_VERSION} \
           twine==${TWINE_VERSION}
     - name: Debug git repository
-      if: inputs.pypi-username != '' && inputs.pypi-password != ''
+      if: inputs.pypi-username != '' && inputs.pypi-password != '' && inputs.publish-to-pypi != 'true'
       shell: bash -l {0}
       run: |
         git log -n 1
         git status
     - name: Build Package
-      if: inputs.pypi-username != '' && inputs.pypi-password != ''
+      if: inputs.pypi-username != '' && inputs.pypi-password != '' && inputs.publish-to-pypi != 'true'
       shell: bash -l {0}
       run: python -m build
     - name: Publish Package
-      if: inputs.pypi-username != '' && inputs.pypi-password != ''
+      if: inputs.pypi-username != '' && inputs.pypi-password != '' && inputs.publish-to-pypi != 'true'
       shell: bash -l {0}
       run: twine upload dist/*
       env:
