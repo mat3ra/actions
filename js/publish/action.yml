@@ -6,6 +6,7 @@ inputs:
   node-version:
     description: Version of Node to use
     required: false
+    default: "14.x"
   npm-token:
     description: grants access to publish releases to NPM
     required: true
