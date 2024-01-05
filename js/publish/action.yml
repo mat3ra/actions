@@ -46,6 +46,7 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
+        scope: ${{ inputs.scope }}
         always-auth: true
     - name: Set working directory
       shell: bash -l {0}
