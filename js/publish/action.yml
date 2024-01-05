@@ -45,7 +45,7 @@ runs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.node-version }}
-        registry-url: ${{ registry-url }}
+        registry-url: ${{ inputs.registry-url }}
         always-auth: true
     - name: Set working directory
       shell: bash -l {0}
