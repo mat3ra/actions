@@ -54,7 +54,7 @@ runs:
       run: cd ${{ inputs.package-directory }}
     - name: Install
       shell: bash -l {0}
-      run: npm install
+      run: npm cache clean -f && npm install
     - name: Verify tests
       if: inputs.verify-tests == 'true'
       shell: bash -l {0}
