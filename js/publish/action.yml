@@ -42,8 +42,9 @@ runs:
   using: composite
   steps:
     - name: Setup NodeJS
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
+        cache-dependency-path: ${{ inputs.package-directory }}/package-lock.json
         node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
