@@ -95,6 +95,8 @@ runs:
       id: publish-release-to-npm
       shell: bash -l {0}
       run: |
+        echo "NOTE: REMOVING .npmrc file to enable GH NAMESPACE usage. Use action instead!"
+        rm -f .npmrc
         TAG_NAME=${{ steps.get-tag-name.outputs.tag-name }}
         echo "tag name: ${TAG_NAME}"
         echo "tag-name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
