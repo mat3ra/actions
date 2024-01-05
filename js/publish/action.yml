@@ -54,11 +54,11 @@ runs:
       run: cd ${{ inputs.package-directory }}
     - name: Install
       shell: bash -l {0}
-      run: npm cache clean -f && npm install
+      run: cd ${{ inputs.package-directory }} && npm install
     - name: Verify tests
       if: inputs.verify-tests == 'true'
       shell: bash -l {0}
-      run: npm test
+      run: cd ${{ inputs.package-directory }} && npm test
 
     - name: Configure repository
       uses: ./actions/git/config
@@ -79,6 +79,7 @@ runs:
     - name: Prepare npmignore if not specified in package.json
       shell: bash -l {0}
       run: |
+        cd ${{ inputs.package-directory }}
         # if package.json specifies what files to pack, skip this step
         FILES=$(jq -r .files package.json)
         if [[ "${FILES}" == "null" ]]; then
@@ -96,6 +97,7 @@ runs:
       id: publish-release-to-npm
       shell: bash -l {0}
       run: |
+        cd ${{ inputs.package-directory }}
         echo "NOTE: REMOVING .npmrc file to enable GH NAMESPACE usage. Use action instead!"
         rm -f .npmrc
         TAG_NAME=${{ steps.get-tag-name.outputs.tag-name }}
