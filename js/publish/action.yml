@@ -34,16 +34,13 @@ inputs:
     required: false
     default: 'https://registry.npmjs.org'
   scope:
-    description: Scope to publish under, e.g. "@mat3ra-private"
+    description: Scope to publish under, e.g. "@exabyte-io"
     required: false
     default: ''
 
 runs:
   using: composite
   steps:
-    - name: Set working directory
-      shell: bash -l {0}
-      run: cd ${{ inputs.package-directory }}
     - name: Setup NodeJS
       uses: actions/setup-node@v3
       with:
@@ -51,6 +48,9 @@ runs:
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
         always-auth: true
+    - name: Set working directory
+      shell: bash -l {0}
+      run: cd ${{ inputs.package-directory }}
     - name: Install
       shell: bash -l {0}
       run: npm install
