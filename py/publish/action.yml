@@ -17,6 +17,10 @@ inputs:
     description: Password of PyPI user
     required: false
     default: ''
+  pypi-api-token:
+    description: API Token of PyPI user
+    required: false
+    default: ''
   publish-tag:
     description: Publish tag and release before publishing to PyPI
     required: true
@@ -77,5 +81,5 @@ runs:
       shell: bash -l {0}
       run: twine upload dist/*
       env:
-        TWINE_USERNAME: ${{ inputs.pypi-username }}
-        TWINE_PASSWORD: ${{ inputs.pypi-password }}
+        TWINE_USERNAME: "__token__"
+        TWINE_PASSWORD: ${{ inputs.pypi-api-token }}
