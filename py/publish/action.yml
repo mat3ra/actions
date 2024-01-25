@@ -41,8 +41,6 @@ runs:
     - name: Determine git tag
       id: get-tag-name
       uses: ./actions/git/version
-      with:
-        create-new-tag: ${{ inputs.publish-tag }}
 
     # Only one of the two steps below should run depending on the `publish-tag` value
     # B/c setuptools scm requires a tag it has to be created, but for dual-purpose JS/PY
