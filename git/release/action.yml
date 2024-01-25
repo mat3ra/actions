@@ -10,31 +10,28 @@ inputs:
     description: name of tag to push and release
     required: true
     default: ''
-  sync-branch:  # TODO : remove this option and step
-    description: string which if true, will push commits back to branch
+  skip-publish:
+    description: whether to only create tag and not publish it
     required: true
-    default: 'false'
+    default: ''
 
 runs:
   using: composite
   steps:
-
-    - name: Sync Branch
-      if: inputs.sync-branch == 'true'
-      shell: bash -l {0}
-      run: echo "Remove the sync-branch parameter from downstream workflows! It is deprecated"
 
     - name: Create git tag
       shell: bash -l {0}
       run: git tag ${{ inputs.tag-name }}
 
     - name: Push Tag To Remote
+      if: inputs.skip-publish == ''
       shell: bash -l {0}
       run: |
           git push origin ${{ inputs.tag-name }}
           sleep 15  # give github time to register the tag before publishing
 
     - name: Create Release
+      if: inputs.skip-publish == ''
       shell: bash -l {0}
       run: |
           NOTES="Release ${{ inputs.tag-name }} created by exabyte-io-bot"
