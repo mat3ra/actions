@@ -43,12 +43,23 @@ runs:
       uses: ./actions/git/version
       with:
         create-new-tag: ${{ inputs.publish-tag }}
+
+    # Only one of the two steps below should run depending on the `publish-tag` value
+    # B/c setuptools scm requires a tag it has to be created, but for dual-purpose JS/PY
+    # packages, the tag may be published as part of JS pipeline, hence the tag-only case
     - name: Publish new git tag and release
       if: inputs.publish-tag == 'true'
       uses: ./actions/git/release
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
+    - name: Only create new git tag locally for Setuptools SCM versioning logic
+      if: inputs.publish-tag != 'true'
+      uses: ./actions/git/release
+      with:
+        github-token: ${{ inputs.github-token }}
+        tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
+        skip-publish: 'true'
 
     - name: Setup Python ${{ inputs.python-version }}
       if: inputs.pypi-api-token != '' && inputs.publish-to-pypi == 'true'
