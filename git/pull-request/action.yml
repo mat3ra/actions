@@ -79,6 +79,15 @@ runs:
         # Per https://github.com/cli/cli/issues/2691#issuecomment-1289521962
         sleep 5
 
+    # TODO: figure out how to pass version as a result of the publish job instead
+    - name: Get default branch name
+      id: branch-name
+      shell: bash -l {0}
+      run: |
+        cd ${{ inputs.target-repository }}
+        git checkout dev || git checkout main
+        echo "BRANCH=$(git branch --show-current)" >> $GITHUB_ENV
+
     - name: Create PR
       shell: bash -l {0}
       run: |
