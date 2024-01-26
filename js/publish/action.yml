@@ -6,7 +6,7 @@ inputs:
   node-version:
     description: Version of Node to use
     required: false
-    default: "14.x"
+    default: 14.x
   npm-token:
     description: grants access to publish releases to NPM
     required: true
@@ -32,7 +32,7 @@ inputs:
   registry-url:
     description: NPM registry URL
     required: false
-    default: 'https://registry.npmjs.org'
+    default: https://registry.npmjs.org
   scope:
     description: Scope to publish under, e.g. "@exabyte-io"
     required: false
