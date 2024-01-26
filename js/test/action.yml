@@ -61,7 +61,7 @@ runs:
         if [[ $CHROME_MAIN_VERSION == "" ]]; then
           CHROMEDRIVER_VERSION="{{ inputs.chromedriver-version }}";
           echo "Set Chrome Version from input to $CHROMEDRIVER_VERSION"
-        else 
+        else
           CHROMEDRIVER_VERSION="$CHROME_MAIN_VERSION".0
           echo "Set Chrome Version from OS to $CHROMEDRIVER_VERSION"
         fi
