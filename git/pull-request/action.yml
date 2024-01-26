@@ -47,7 +47,9 @@ runs:
     - name: Replace early version(s) in package.json
       shell: bash -l {0}
       run: |
-        echo "${{ inputs.source-package-name }}, ${{ inputs.target-repository }}, ${{ inputs.target-version }}"
+        echo "source package name: ${{ inputs.source-package-name }}"
+        echo "target repository: ${{ inputs.target-repository }}"
+        echo "target version: ${{ inputs.target-version }}"
         sudo npm cache verify
         cd ${{ inputs.target-repository }}
         npm i ${{ inputs.source-package-name }}@latest
