@@ -90,5 +90,5 @@ runs:
       shell: bash -l {0}
       run: twine upload dist/*
       env:
-        TWINE_USERNAME: "__token__"
+        TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ inputs.pypi-api-token }}
