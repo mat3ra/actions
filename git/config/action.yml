@@ -27,4 +27,5 @@ runs:
       shell: bash -l {0}
       run: |
         # fetch all git tags for version logic
-        git fetch --prune --unshallow --tags
+        # To avoid: `--unshallow on a complete repository does not make sense`
+        git fetch --prune --unshallow --tags || git fetch --prune --tags
