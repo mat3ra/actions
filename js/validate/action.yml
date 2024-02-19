@@ -13,6 +13,11 @@ inputs:
     description: Whether to run the eslint action
     required: false
     default: 'false'
+  use-npm-ci:
+    description: Whether to run the eslint action
+    required: false
+    default: ''
+
 
 runs:
   using: composite
@@ -44,5 +49,9 @@ runs:
       if: inputs.skip-eslint != 'true'
       shell: bash -l {0}
       run: |
-        npm ci
+        if [ ! -z "${{ inputs.use-npm-ci }}" ]; then
+          npm ci
+        else
+          npm install --no-save
+        fi
         npm run lint
