@@ -84,7 +84,13 @@ runs:
     - name: Build Package
       if: inputs.pypi-api-token != '' && inputs.publish-to-pypi == 'true'
       shell: bash -l {0}
-      run: python -m build
+      run: |
+        DIRECTORY=dist
+        if [ -d "$DIRECTORY" ]; then
+          echo "Directory $DIRECTORY already exists. Removing it and its content."
+          rm -rf $DIRECTORY
+        fi
+        python -m build
     - name: Publish Package
       if: inputs.pypi-api-token != '' && inputs.publish-to-pypi == 'true'
       shell: bash -l {0}
