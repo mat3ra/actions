@@ -37,19 +37,6 @@ runs:
     - name: Setup Python Environment
       uses: ./actions/py/env
 
-    - name: Setup ssh-agent
-      if: inputs.bot-ssh-key != ''
-      uses: webfactory/ssh-agent@v0.8.0
-      with:
-        ssh-private-key: ${{ inputs.bot-ssh-key }}
-
-    - name: Replace "git+file" with "git+ssh" in requirements
-      if: inputs.bot-ssh-key != ''
-      shell: bash -l {0}
-      run: |
-        sed -i 's;git+file:///stack/lib/;git+ssh://git@github.com/Exabyte-io/;g' \
-          ${{ inputs.requirements-file-basename }}
-
     - name: Install dependencies
       shell: bash -l {0}
       run: python3 -m pip install -e ".[tests]"
