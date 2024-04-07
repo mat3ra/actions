@@ -39,7 +39,7 @@ runs:
 
     - name: Install dependencies
       shell: bash -l {0}
-      run: python3 -m pip install -e ".[tests]"
+      run: python3 -m pip install ".[tests]"
 
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
