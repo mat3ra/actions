@@ -41,6 +41,10 @@ runs:
       shell: bash -l {0}
       run: python3 -m pip install ".[tests]"
 
+    - name: List dependencies explicitly
+      shell: bash -l {0}
+      run: python3 -m pip list
+
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
       shell: bash -l {0}
