@@ -5,7 +5,7 @@ inputs:
   exclude:
     description: File patterns to exclude
     required: false
-    default: 'XXX'
+    default: XXX
 runs:
   using: composite
   steps:
