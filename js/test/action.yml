@@ -65,7 +65,8 @@ runs:
           CHROMEDRIVER_VERSION="$CHROME_MAIN_VERSION".0
           echo "Set Chrome Version from OS to $CHROMEDRIVER_VERSION"
         fi
-        cd ${{ inputs.package-directory }} && npm install chromedriver@${CHROMEDRIVER_VERSION}
+        cd ${{ inputs.package-directory }}
+        npm i chromedriver@^${CHROMEDRIVER_VERSION} || npm i chromedriver@^${{ inputs.chromedriver-version }}
       # yamllint enable rule:line-length
     - name: Build
       shell: bash -l {0}
