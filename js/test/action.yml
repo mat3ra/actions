@@ -19,7 +19,7 @@ inputs:
     # This is driver for ubuntu-latest browser:
     # 104.0.5112.101 by default with binary path /usr/bin/google-chrome
     # yamllint disable rule:quoted-strings
-    default: '104.0.0'
+    default: '123.0.0'
     # yamllint enable rule:quoted-strings
   package-directory:
     description: |
@@ -40,7 +40,7 @@ runs:
   using: composite
   steps:
     - name: Setup NodeJS
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
     - name: Install meteor
@@ -65,7 +65,8 @@ runs:
           CHROMEDRIVER_VERSION="$CHROME_MAIN_VERSION".0
           echo "Set Chrome Version from OS to $CHROMEDRIVER_VERSION"
         fi
-        cd ${{ inputs.package-directory }} && npm install chromedriver@${CHROMEDRIVER_VERSION}
+        cd ${{ inputs.package-directory }}
+        npm i chromedriver@^${CHROMEDRIVER_VERSION} || npm i chromedriver@^${{ inputs.chromedriver-version }}
       # yamllint enable rule:line-length
     - name: Build
       shell: bash -l {0}
