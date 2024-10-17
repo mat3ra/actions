@@ -50,8 +50,8 @@ runs:
       shell: bash -l {0}
       run: |
         if [ ! -z "${{ inputs.use-npm-ci }}" ]; then
-          npm ci
+          npm --prefix ${{ inputs.package-directory }} ci
         else
-          npm install --no-save
+          npm --prefix ${{ inputs.package-directory }} install --no-save
         fi
-        npm run lint
+        npm --prefix ${{ inputs.package-directory }} run lint
