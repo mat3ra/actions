@@ -49,9 +49,13 @@ runs:
       if: inputs.skip-eslint != 'true'
       shell: bash -l {0}
       run: |
-        if [ ! -z "${{ inputs.use-npm-ci }}" ]; then
-          npm --prefix ${{ inputs.package-directory }} ci
-        else
-          npm --prefix ${{ inputs.package-directory }} install --no-save
+        NPM_OPTIONS=""
+        if [ "${{ inputs.use-npm-ci }}" != "." ]; then
+          NPM_OPTIONS="--prefix ${{ inputs.package-directory }}"
         fi
-        npm --prefix ${{ inputs.package-directory }} run lint
+        if [ ! -z "${{ inputs.use-npm-ci }}" ]; then
+          npm ${NPM_OPTIONS} ci
+        else
+          npm ${NPM_OPTIONS} install --no-save
+        fi
+        npm ${NPM_OPTIONS} run lint
