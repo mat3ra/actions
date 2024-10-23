@@ -50,7 +50,7 @@ runs:
       shell: bash -l {0}
       run: |
         NPM_OPTIONS=""
-        if [ "${{ inputs.use-npm-ci }}" != "." ]; then
+        if [ "${{ inputs.package-directory }}" != "." ]; then
           NPM_OPTIONS="--prefix ${{ inputs.package-directory }}"
         fi
         if [ ! -z "${{ inputs.use-npm-ci }}" ]; then
