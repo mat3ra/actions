@@ -35,6 +35,10 @@ inputs:
     description: Meteor version to be installed globally
     required: false
     default: 2.7.3
+  legacy-peer-deps:
+    description: Add --legacy-peer-deps to npm install
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -49,7 +53,8 @@ runs:
       run: npm install -g meteor@${{ inputs.meteor-version }}
     - name: Install
       shell: bash -l {0}
-      run: cd ${{ inputs.package-directory }} && npm install --legacy-peer-deps
+      if: inputs.legacy-peer-deps == 'true'
+      run: cd ${{ inputs.package-directory }} && npm install ${{ legacy-peer-deps == 'true' && '--legacy-peer-deps' || '' }}
     - name: Install ChromeDriver
       shell: bash -l {0}
       if: inputs.install-chromedriver == 'true'
