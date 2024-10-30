@@ -49,7 +49,7 @@ runs:
       run: npm install -g meteor@${{ inputs.meteor-version }}
     - name: Install
       shell: bash -l {0}
-      run: cd ${{ inputs.package-directory }} && npm install
+      run: cd ${{ inputs.package-directory }} && npm install --legacy-peer-deps
     - name: Install ChromeDriver
       shell: bash -l {0}
       if: inputs.install-chromedriver == 'true'
