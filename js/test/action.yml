@@ -35,6 +35,10 @@ inputs:
     description: Meteor version to be installed globally
     required: false
     default: 2.7.3
+  npm-options:
+    description: Add options to npm install
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -49,7 +53,7 @@ runs:
       run: npm install -g meteor@${{ inputs.meteor-version }}
     - name: Install
       shell: bash -l {0}
-      run: cd ${{ inputs.package-directory }} && npm install
+      run: cd ${{ inputs.package-directory }} && npm install ${{ inputs.npm-options }}
     - name: Install ChromeDriver
       shell: bash -l {0}
       if: inputs.install-chromedriver == 'true'
@@ -66,7 +70,7 @@ runs:
           echo "Set Chrome Version from OS to $CHROMEDRIVER_VERSION"
         fi
         cd ${{ inputs.package-directory }}
-        npm i chromedriver@${CHROMEDRIVER_VERSION} || npm i chromedriver@${{ inputs.chromedriver-version }}
+        npm i ${{ inputs.npm-options }} chromedriver@${CHROMEDRIVER_VERSION} || npm i ${{ inputs.npm-options }} chromedriver@${{ inputs.chromedriver-version }}
       # yamllint enable rule:line-length
     - name: Build
       shell: bash -l {0}
