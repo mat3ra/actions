@@ -35,10 +35,10 @@ inputs:
     description: Meteor version to be installed globally
     required: false
     default: 2.7.3
-  legacy-peer-deps:
-    description: Add --legacy-peer-deps to npm install
+  npm-options:
+    description: Add additional options to npm install
     required: false
-    default: 'false'
+    default: ''
 
 runs:
   using: composite
@@ -54,9 +54,7 @@ runs:
     - name: Install
       shell: bash -l {0}
       if: inputs.legacy-peer-deps == 'true'
-      run: |
-        cd ${{ inputs.package-directory }} && \
-        npm install ${{ inputs.legacy-peer-deps == 'true' && '--legacy-peer-deps' || '' }}
+      run: cd ${{ inputs.package-directory }} && npm install ${{ inputs.npm-options }}
     - name: Install ChromeDriver
       shell: bash -l {0}
       if: inputs.install-chromedriver == 'true'
@@ -73,7 +71,7 @@ runs:
           echo "Set Chrome Version from OS to $CHROMEDRIVER_VERSION"
         fi
         cd ${{ inputs.package-directory }}
-        npm i ${{ inputs.legacy-peer-deps == 'true' && '--legacy-peer-deps' || '' }} chromedriver@${CHROMEDRIVER_VERSION} || npm i ${{ inputs.legacy-peer-deps == 'true' && '--legacy-peer-deps' || '' }} chromedriver@${{ inputs.chromedriver-version }}
+        npm i ${{ inputs.npm-options }} chromedriver@${CHROMEDRIVER_VERSION} || npm i ${{ inputs.npm-options }} chromedriver@${{ inputs.chromedriver-version }}
       # yamllint enable rule:line-length
     - name: Build
       shell: bash -l {0}
