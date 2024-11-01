@@ -54,7 +54,8 @@ runs:
     - name: Install
       shell: bash -l {0}
       if: inputs.legacy-peer-deps == 'true'
-      run: cd ${{ inputs.package-directory }} && npm install ${{ inputs.legacy-peer-deps == 'true' && '--legacy-peer-deps' || '' }}
+      run: |
+        cd ${{ inputs.package-directory }} && npm install ${{ inputs.legacy-peer-deps == 'true' && '--legacy-peer-deps' || '' }}
     - name: Install ChromeDriver
       shell: bash -l {0}
       if: inputs.install-chromedriver == 'true'
