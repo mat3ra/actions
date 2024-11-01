@@ -36,7 +36,7 @@ inputs:
     required: false
     default: 2.7.3
   npm-options:
-    description: Add additional options to npm install
+    description: Add options to npm install
     required: false
     default: ''
 
@@ -53,7 +53,6 @@ runs:
       run: npm install -g meteor@${{ inputs.meteor-version }}
     - name: Install
       shell: bash -l {0}
-      if: inputs.legacy-peer-deps == 'true'
       run: cd ${{ inputs.package-directory }} && npm install ${{ inputs.npm-options }}
     - name: Install ChromeDriver
       shell: bash -l {0}
