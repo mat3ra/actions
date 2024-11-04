@@ -37,6 +37,10 @@ inputs:
     description: Scope to publish under, e.g. "@exabyte-io"
     required: false
     default: ''
+  npm-options:
+    description: Add options to npm install
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -54,7 +58,7 @@ runs:
       run: cd ${{ inputs.package-directory }}
     - name: Install
       shell: bash -l {0}
-      run: cd ${{ inputs.package-directory }} && npm install
+      run: cd ${{ inputs.package-directory }} && npm install  ${{ inputs.npm-options }}
     - name: Verify tests
       if: inputs.verify-tests == 'true'
       shell: bash -l {0}
