@@ -51,6 +51,7 @@ runs:
       run: python3 -m pip list
 
     - name: Set Environment Variables
+      shell: bash -l {0}
       run: echo "${{ inputs.environment }}" >> $GITHUB_ENV
 
     - name: Run unit tests
