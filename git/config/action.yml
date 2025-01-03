@@ -5,6 +5,9 @@ inputs:
   github-token:
     description: grants access to github repository
     required: true
+  github-repo:
+    description: the name of the repository
+    required: false
 
 runs:
   using: composite
@@ -14,6 +17,9 @@ runs:
       run: |
         # configure git repository for downstream interaction
         REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
+        if [ ! -z "${{ inputs.github-repo }}" ]; then
+          REPO_URL="${{ inputs.github-repo }}"
+        fi
         git remote set-url origin ${REPO_URL}
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
