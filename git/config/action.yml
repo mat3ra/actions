@@ -12,7 +12,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Configure git for bot account
+    - name: Form the Repor URL with Auth.
       shell: bash -l {0}
       run: |
         # configure git repository for downstream interaction
@@ -22,7 +22,12 @@ runs:
           REPO_NAME="${{ github.repository }}"
         fi
         REPO_URL=https://${{ inputs.github-token }}@github.com/${REPO_NAME}.git
-        git remote set-url origin ${REPO_URL}
+        echo "ACTIONS_GIT_CONFIG_REPO_URL=${REPO_URL}" >> "$GITHUB_ENV"
+    - name: Configure git for bot account
+      shell: bash -l {0}
+      run: |
+        # configure git repository for downstream interaction
+        git remote set-url origin ${ACTIONS_GIT_CONFIG_REPO_URL}
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
     - name: Authenticate to github CLI
