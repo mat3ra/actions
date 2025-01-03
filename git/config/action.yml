@@ -32,6 +32,8 @@ runs:
         echo "${{ inputs.github-token }}" > token.dat
         gh auth login --with-token < token.dat
     - name: Fetch git tags
+      # Only trigger fetch if setting up for the current repo, not another one
+      if: inputs.github-repo == ''
       shell: bash -l {0}
       run: |
         # fetch all git tags for version logic
