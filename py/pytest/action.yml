@@ -50,10 +50,12 @@ runs:
       shell: bash -l {0}
       run: python3 -m pip list
 
+    - name: Set Environment Variables
+      run: echo "${{ inputs.environment }}" >> $GITHUB_ENV
+
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
       shell: bash -l {0}
-      env: ${{ inputs.environment }}
       run: |
         sudo env "PATH=$PATH" python3 -m pytest \
         --cov=src/ --cov-report term --cov-report=xml --cov-append \
@@ -62,7 +64,6 @@ runs:
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
-      env: ${{ inputs.environment }}
       run: |
         sudo env "PATH=$PATH" python3 -m pytest \
         --cov=src/ --cov-report term --cov-report=xml --cov-append \
