@@ -50,7 +50,6 @@ runs:
       shell: bash -l {0}
       run: python3 -m pip list
 
-    # Doesn't seem to work as of 2025.1.2
     - name: Set Environment Variables
       shell: bash -l {0}
       run: echo "${{ inputs.environment }}" >> $GITHUB_ENV
@@ -60,7 +59,7 @@ runs:
       shell: bash -l {0}
       run: |
         # Explicitly passing the environment below as GITHUB_ENV is not passed to pytest
-        env "PATH=$PATH" "${{ inputs.environment }}" python3 -m pytest \
+        python3 -m pytest \
         --cov=src/ --cov-report term --cov-report=xml --cov-append \
         ${{ inputs.unit-test-directory }}
 
@@ -68,7 +67,7 @@ runs:
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
       run: |
-        env "PATH=$PATH" "${{ inputs.environment }}" python3 -m pytest \
+        python3 -m pytest \
         --cov=src/ --cov-report term --cov-report=xml --cov-append \
         ${{ inputs.integration-test-directory }}
 
