@@ -16,10 +16,12 @@ runs:
       shell: bash -l {0}
       run: |
         # configure git repository for downstream interaction
-        REPO_URL=https://${{ inputs.github-token }}@github.com/${{ github.repository }}.git
         if [ ! -z "${{ inputs.github-repo }}" ]; then
-          REPO_URL="${{ inputs.github-repo }}"
+          REPO_NAME="${{ inputs.github-repo }}"
+        else
+          REPO_NAME="${{ github.repository }}"
         fi
+        REPO_URL=https://${{ inputs.github-token }}@github.com/${REPO_NAME}.git
         git remote set-url origin ${REPO_URL}
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
