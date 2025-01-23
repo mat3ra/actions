@@ -31,11 +31,6 @@ inputs:
     required: false
     default: ''
 
-  ensurepip:
-    description: bootstrap pip installation using ensurepip
-    required: false
-    default: false
-
 runs:
   using: composite
   steps:
@@ -46,11 +41,6 @@ runs:
 
     - name: Setup Python Environment
       uses: ./actions/py/env
-
-    - name: Bootstrap pip using ensurepip
-      if: ${{ inputs.ensurepip }}
-      shell: bash -l {0}
-      run: python3 -m ensurepip --upgrade
 
     - name: Install dependencies
       shell: bash -l {0}
