@@ -17,6 +17,10 @@ inputs:
     description: Whether to run the eslint action
     required: false
     default: ''
+  use-legacy-peer-deps:
+    description: Whether to use legacy peer deps
+    required: false
+    default: ''
 
 
 runs:
@@ -53,9 +57,12 @@ runs:
         if [ "${{ inputs.package-directory }}" != "." ]; then
           NPM_OPTIONS="--prefix ${{ inputs.package-directory }}"
         fi
+        if [ "${{ inputs.use-legacy-peer-deps }}" != "." ]; then
+          USE_LEGACY_PEER_DEPS="--legacy-peer-deps"
+        fi
         if [ ! -z "${{ inputs.use-npm-ci }}" ]; then
           npm ${NPM_OPTIONS} ci
         else
-          npm ${NPM_OPTIONS} install --no-save
+          npm ${NPM_OPTIONS} install --no-save ${USE_LEGACY_PEER_DEPS}
         fi
         npm ${NPM_OPTIONS} run lint
