@@ -57,7 +57,7 @@ runs:
         if [ "${{ inputs.package-directory }}" != "." ]; then
           NPM_OPTIONS="--prefix ${{ inputs.package-directory }}"
         fi
-        if [ "${{ inputs.use-legacy-peer-deps }}" != "." ]; then
+        if if [ ! -z "${{ inputs.use-legacy-peer-deps }}" ]; then
           USE_LEGACY_PEER_DEPS="--legacy-peer-deps"
         fi
         if [ ! -z "${{ inputs.use-npm-ci }}" ]; then
