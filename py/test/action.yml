@@ -31,6 +31,11 @@ inputs:
     required: false
     default: requirements.txt
 
+  pip-install-group-name:
+    description: Name of the pip install group - e.g. ".[all]"
+    required: false
+    default: tests
+
   pypi-mat3ra-com-user:
     required: false
     default: ''
@@ -78,7 +83,7 @@ runs:
         if [ -f "${{ inputs.requirements-file-basename }}" ]; then
           pip install -r ${{ inputs.requirements-file-basename }}
         else
-          pip install ".[tests]"
+          pip install ".{{ inputs.pip-install-group-name }}"
         fi
 
     - name: Run unit tests
