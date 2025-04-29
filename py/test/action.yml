@@ -83,7 +83,7 @@ runs:
         if [ -f "${{ inputs.requirements-file-basename }}" ]; then
           pip install -r ${{ inputs.requirements-file-basename }}
         else
-          pip install ".${{ inputs.pip-install-group-name }}"
+          pip install ".[${{ inputs.pip-install-group-name }}]"
         fi
 
     - name: Run unit tests
