@@ -61,13 +61,6 @@ runs:
       run: python -m venv .venv
 
     - name: Setup Python Environment
-      shell: bash -l {0}
-      run: |
-        source .venv/bin/activate
-        # Export VIRTUAL_ENV and update PATH for following steps if needed
-        echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
-        echo "$PWD/.venv/bin" >> $GITHUB_PATH
-      # If your py/env action sets environment variables, you may want to run it here as well
       uses: ./actions/py/env
       with:
         pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
