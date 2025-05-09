@@ -36,6 +36,11 @@ inputs:
     required: false
     default: tests
 
+  pip-install-no-cache:
+    description: Whether to enforce no cache
+    required: false
+    default: 'true'
+
   pypi-mat3ra-com-user:
     required: false
     default: ''
@@ -70,10 +75,14 @@ runs:
     - name: Install dependencies
       shell: bash -l {0}
       run: |
+        MAYBE_NO_CACHE=""
+        if [ -f "${{ inputs.pip-install-no-cache }}" ]; then
+          MAYBE_NO_CACHE="--no-cache-dir"
+        fi
         if [ -f "${{ inputs.requirements-file-basename }}" ]; then
-          python3 -m pip install -r ${{ inputs.requirements-file-basename }}
+          python3 -m pip install ${MAYBE_NO_CACHE} -r ${{ inputs.requirements-file-basename }}
         else
-          python3 -m pip install ".[${{ inputs.pip-install-group-name }}]"
+          python3 -m pip install ${MAYBE_NO_CACHE} ".[${{ inputs.pip-install-group-name }}]"
         fi
     
     - name: List dependencies explicitly
