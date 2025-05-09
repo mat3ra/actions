@@ -76,7 +76,7 @@ runs:
       shell: bash -l {0}
       run: |
         MAYBE_NO_CACHE=""
-        if [ -f "${{ inputs.pip-install-no-cache }}" ]; then
+        if [ ! -z "${{ inputs.pip-install-no-cache }}" ]; then
           MAYBE_NO_CACHE="--no-cache-dir"
         fi
         if [ -f "${{ inputs.requirements-file-basename }}" ]; then
