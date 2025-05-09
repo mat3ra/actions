@@ -39,7 +39,7 @@ inputs:
   pip-install-no-cache:
     description: Whether to enforce no cache
     required: false
-    default: 'true'
+    default: ''
 
   pypi-mat3ra-com-user:
     required: false
