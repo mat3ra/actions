@@ -56,7 +56,18 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
+    - name: Create virtual environment
+      shell: bash -l {0}
+      run: python -m venv .venv
+
     - name: Setup Python Environment
+      shell: bash -l {0}
+      run: |
+        source .venv/bin/activate
+        # Export VIRTUAL_ENV and update PATH for following steps if needed
+        echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+        echo "$PWD/.venv/bin" >> $GITHUB_PATH
+      # If your py/env action sets environment variables, you may want to run it here as well
       uses: ./actions/py/env
       with:
         pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
@@ -65,7 +76,8 @@ runs:
     - name: Upgrade core tools to pinned versions
       shell: bash -l {0}
       run: |
-        python3 -m pip install --upgrade \
+        source .venv/bin/activate
+        pip install --upgrade \
           pip==$PIP_VERSION \
           setuptools==$SETUPTOOLS_VERSION \
           wheel==$WHEEL_VERSION \
@@ -75,36 +87,40 @@ runs:
     - name: Install dependencies
       shell: bash -l {0}
       run: |
+        source .venv/bin/activate
         MAYBE_NO_CACHE=""
         if [ ! -z "${{ inputs.pip-install-no-cache }}" ]; then
           MAYBE_NO_CACHE="--no-cache-dir"
         fi
         if [ -f "${{ inputs.requirements-file-basename }}" ]; then
-          python3 -m pip install ${MAYBE_NO_CACHE} -r ${{ inputs.requirements-file-basename }}
+          pip install ${MAYBE_NO_CACHE} -r ${{ inputs.requirements-file-basename }}
         else
-          python3 -m pip install ${MAYBE_NO_CACHE} ".[${{ inputs.pip-install-group-name }}]"
+          pip install ${MAYBE_NO_CACHE} ".[${{ inputs.pip-install-group-name }}]"
         fi
-    
+
     - name: List dependencies explicitly
       shell: bash -l {0}
-      run: python3 -m pip list
+      run: |
+        source .venv/bin/activate
+        pip list
 
     - name: Run unit tests
       if: inputs.unit-test-directory != ''
       shell: bash -l {0}
-      # yamllint disable rule:line-length
-      run: python3 -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
-      # yamllint enable rule:line-length
+      run: |
+        source .venv/bin/activate
+        python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
 
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
-      # yamllint disable rule:line-length
-      run: python3 -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
-      # yamllint enable rule:line-length
+      run: |
+        source .venv/bin/activate
+        python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
 
     - name: Run scripted tests
       if: inputs.test-script != ''
       shell: bash -l {0}
       run: |
-        python3 ${{ inputs.test-script }}
+        source .venv/bin/activate
+        python ${{ inputs.test-script }}
