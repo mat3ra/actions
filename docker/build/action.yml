@@ -19,6 +19,10 @@ inputs:
     description: additional CLI args to pass to docker build
     required: false
     default: ''
+  build-context:
+    description: additional Build Context
+    required: false
+    default: '.'
 
 runs:
   using: composite
@@ -29,7 +33,7 @@ runs:
         IMAGE_NAME=${{ inputs.image-name }}:${{ inputs.image-tag }}
         if [[ "${{ inputs.cli-args }}" != "" ]]; then
           # Assume downstream repositories pass additional cli-args and need build context
-          docker build ${{ inputs.cli-args }} -t ${IMAGE_NAME} -f ${{ inputs.dockerfile }} .
+          docker build ${{ inputs.cli-args }} -t ${IMAGE_NAME} -f ${{ inputs.dockerfile }} ${{ inputs.build-context }}
         else
           # Assume we don't need a build context for actions repo dockerfiles
           docker build - -t ${IMAGE_NAME} < ${{ inputs.dockerfile }}
