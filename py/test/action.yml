@@ -41,6 +41,11 @@ inputs:
     required: false
     default: ''
 
+  pip-version:
+    description: Whether to pin pip version
+    require: false
+    default: ''
+
   pypi-mat3ra-com-user:
     required: false
     default: ''
@@ -70,6 +75,9 @@ runs:
       shell: bash -l {0}
       run: |
         source .venv/bin/activate
+        if [ ! -z "${{ inputs.pip-version }}" ]; then
+          PIP_VERSION="${{ inputs.pip-version }}"
+        fi
         pip install --upgrade \
           pip==$PIP_VERSION \
           setuptools==$SETUPTOOLS_VERSION \
