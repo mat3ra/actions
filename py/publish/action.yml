@@ -94,7 +94,7 @@ runs:
     - name: Publish Package
       if: inputs.pypi-api-token != '' && inputs.publish-to-pypi == 'true'
       shell: bash -l {0}
-      run: twine upload dist/*
+      run: twine upload --verbose dist/*
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ inputs.pypi-api-token }}
