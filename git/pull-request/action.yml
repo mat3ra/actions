@@ -31,14 +31,14 @@ runs:
   using: composite
   steps:
     - name: Checkout target repository
-      uses: actions/checkout@v4  # checks out actions repository
+      uses: actions/checkout@v7  # checks out actions repository
       with:
         repository: ${{ inputs.target-repository }}
         token: ${{ inputs.github-token }}
         path: ${{ inputs.target-repository }}
 
     - name: Setup NodeJS
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
         registry-url: https://registry.npmjs.org
