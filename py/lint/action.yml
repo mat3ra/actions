@@ -2,15 +2,37 @@
 
 name: Run Python ruff linter
 inputs:
-  exclude:
-    description: File patterns to exclude
+  ruff-args:
+    description: >-
+      Arguments passed to Ruff
+      Default runs `ruff check` based on project's `pyproject.toml`:
+      ```toml
+      [tool.ruff]
+      line-length = 120
+      target-version = "py310"
+      extend-exclude = ["examples/**/*.py"]
+
+      [tool.ruff.per-file-ignores]
+      "__init__.py" = ["F401"]
+      ```
+
+      If using `requirements.txt` specify via `ruff-args`:
+      ```
+      - uses: ./actions/py/lint
+        with:
+          ruff-args: check --line-length=120 --target-version=py310 --exclude some/path
+      ```
     required: false
-    default: XXX
+    default: check
+  ruff-version:
+    description: Ruff version to install (e.g. 0.15.20). Defaults to latest when not specified.
+    required: false
+    default: latest
 runs:
   using: composite
   steps:
     - name: Ruff
-      uses: chartboost/ruff-action@v1
+      uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b # v4.0.0
       with:
-        version: 0.0.270
-        args: --line-length=120 --target-version=py38 --exclude ${{ inputs.exclude }}
+        version: ${{ inputs['ruff-version'] }}
+        args: ${{ inputs['ruff-args'] }}
