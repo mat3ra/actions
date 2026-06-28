@@ -110,14 +110,16 @@ runs:
       shell: bash -l {0}
       run: |
         source .venv/bin/activate
-        python -m unittest discover --verbose --catch --start-directory ${{ inputs.unit-test-directory }}
+        python -m unittest discover --verbose --catch \
+          --start-directory ${{ inputs.unit-test-directory }}
 
     - name: Run integration tests
       if: inputs.integration-test-directory != ''
       shell: bash -l {0}
       run: |
         source .venv/bin/activate
-        python -m unittest discover --verbose --catch --start-directory ${{ inputs.integration-test-directory }}
+        python -m unittest discover --verbose --catch \
+          --start-directory ${{ inputs.integration-test-directory }}
 
     - name: Run scripted tests
       if: inputs.test-script != ''
