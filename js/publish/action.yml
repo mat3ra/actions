@@ -109,7 +109,6 @@ runs:
         TAG_NAME=${{ steps.get-tag-name.outputs.tag-name }}
         echo "tag name: ${TAG_NAME}"
         echo "tag-name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
-        echo "::set-output name=tag-name::$(echo ${TAG_NAME})"
         npm --no-git-tag-version version "${{ steps.get-tag-name.outputs.tag-name }}"
         if [[ "${{ inputs.is-public }}" == "true" ]]; then
           npm publish --access public

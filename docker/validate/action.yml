@@ -23,7 +23,7 @@ runs:
         if [[ "${{ inputs.checked-out }}" == "true" ]]; then
             CONFIG_PATH=./actions/.hadolint.yml
         fi
-        echo "::set-output name=config-path::$(echo ${CONFIG_PATH})"
+        echo "config-path=${CONFIG_PATH}" >> "$GITHUB_OUTPUT"
     - name: Lint Dockerfile
       uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
       with:
