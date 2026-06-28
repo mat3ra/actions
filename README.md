@@ -1,6 +1,6 @@
 # Actions
 
-Composite github actions for CICD workflows. These actions are meant to 
+Composite github actions for CICD workflows. These actions are meant to
 reduce the repetitive logic in individual code repositories by providing
 functionality that downstream repos can reuse. Actions are organized
 by `domain/purpose/action` where `domain` is the programming language
@@ -11,7 +11,7 @@ them.
 ### Usage
 
 These actions are not standalone, and are intended to be used in other workflows.
-For example, as used in [Periodic Table](https://github.com/Exabyte-io/periodic-table.js),
+For example, as used in [Periodic Table](https://github.com/mat3ra/periodic-table.js),
 a workflow using one of these actions might look like:
 
 ```yaml
@@ -22,10 +22,10 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2  # checks out downstream repository
-      - uses: actions/checkout@v2  # checks out actions repository
+      - uses: actions/checkout@v7  # checks out downstream repository
+      - uses: actions/checkout@v7  # checks out actions repository
         with:
-          repository: Exabyte-io/actions
+          repository: mat3ra/actions
           token: ${{ secrets.TOKEN }}
           path: actions
 
@@ -39,6 +39,52 @@ where the workflow in the Periodic Table repository uses the [js/test/action](js
 from the `main` branch in this repository. In the example, the `actions` repository is cloned into
 a relative directory called `actions`. Actions which refer to other actions in this repository
 assume this convention and they should be referred to locally as `./actions/.../...`.
+
+### Py/lint usage
+
+Runs [Ruff](https://docs.astral.sh/ruff/) via [`astral-sh/ruff-action`](
+https://github.com/astral-sh/ruff-action).
+
+**Default** — runs `ruff check` using settings from the project's
+`pyproject.toml`:
+
+```yaml
+- uses: ./actions/py/lint
+```
+
+Example `pyproject.toml` configuration:
+
+```toml
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["examples/**/*.py"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+```
+
+**Requirements-only projects** (no `pyproject.toml`) — pass lint settings via `ruff-args`:
+
+```yaml
+- uses: ./actions/py/lint
+  with:
+    ruff-args: check --line-length=120 --target-version=py310 --exclude some/path
+```
+
+**Optional inputs:**
+
+| Input          | Default  | Description |
+|----------------|----------|-------------|
+| `ruff-args`    | `check`  | Arguments passed to Ruff |
+| `ruff-version` | `latest` | Ruff version to install (e.g. `0.15.20`) |
+
+```yaml
+- uses: ./actions/py/lint
+  with:
+    ruff-version: 0.15.20
+    ruff-args: check
+```
 
 ### Yamllint usage
 
@@ -105,7 +151,7 @@ There are some useful things to keep in mind when using these publish actions:
  - Workflows that interact directly with Github (like publish actions) avoid
    infinite recursion with downstream workflows triggered on `[push]` because events
    triggered by access tokens do not interact with Github actions. See
-   [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token) 
+   [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token)
    for details.
 
 
