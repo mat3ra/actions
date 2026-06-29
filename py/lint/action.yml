@@ -2,37 +2,38 @@
 
 name: Run Python ruff linter
 inputs:
-  ruff-args:
-    description: >-
-      Arguments passed to Ruff
-      Default runs `ruff check` based on project's `pyproject.toml`:
-      ```toml
-      [tool.ruff]
-      line-length = 120
-      target-version = "py310"
-      extend-exclude = ["examples/**/*.py"]
-
-      [tool.ruff.per-file-ignores]
-      "__init__.py" = ["F401"]
-      ```
-
-      If using `requirements.txt` specify via `ruff-args`:
-      ```
-      - uses: ./actions/py/lint
-        with:
-          ruff-args: check --line-length=120 --target-version=py310 --exclude some/path
-      ```
+  exclude:
+    description: File patterns to exclude (passed to Ruff as --exclude)
     required: false
-    default: check
+    default: ''
+  python-version:
+    description: Python version for Ruff target-version (e.g. 3.10 becomes py310)
+    required: false
+    default: '3.10'
   ruff-version:
-    description: Ruff version to install (e.g. 0.15.20). Defaults to latest when not specified.
+    description: Ruff version to install (e.g. 0.15.20). Defaults to 0.0.270 when not specified.
     required: false
-    default: latest
+    default: 0.0.270
 runs:
   using: composite
   steps:
+    - name: Prepare Ruff arguments
+      id: ruff
+      shell: bash
+      run: |
+        PYTHON_VERSION="${{ inputs.python-version }}"
+        MAJOR=$(echo "${PYTHON_VERSION}" | cut -d. -f1)
+        MINOR=$(echo "${PYTHON_VERSION}" | cut -d. -f2)
+        RUFF_TARGET="py${MAJOR}${MINOR}"
+        ARGS="check --line-length=120 --target-version=${RUFF_TARGET}"
+        EXCLUDE="${{ inputs.exclude }}"
+        if [[ -n "${EXCLUDE}" ]]; then
+          ARGS="${ARGS} --exclude=${EXCLUDE}"
+        fi
+        echo "args=${ARGS}" >> "$GITHUB_OUTPUT"
+
     - name: Ruff
-      uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b # v4.0.0
+      uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b  # v4.0.0
       with:
         version: ${{ inputs['ruff-version'] }}
-        args: ${{ inputs['ruff-args'] }}
+        args: ${{ steps.ruff.outputs.args }}

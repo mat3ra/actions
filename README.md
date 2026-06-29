@@ -42,48 +42,72 @@ assume this convention and they should be referred to locally as `./actions/.../
 
 ### Py/lint usage
 
-Runs [Ruff](https://docs.astral.sh/ruff/) via [`astral-sh/ruff-action`](
-https://github.com/astral-sh/ruff-action).
+Runs [Ruff](https://docs.astral.sh/ruff/) via
+[`astral-sh/ruff-action`](https://github.com/astral-sh/ruff-action).
 
-**Default** — runs `ruff check` using settings from the project's
-`pyproject.toml`:
+**Default invocation:**
 
 ```yaml
 - uses: ./actions/py/lint
 ```
 
-Example `pyproject.toml` configuration:
+This runs:
+
+```text
+ruff check --line-length=120 --target-version=py310
+```
+
+(`py310` comes from the default `python-version: '3.10'`.)
+
+**How configuration is resolved**
+
+| Setting          | Source in CI                                        |
+|------------------|-----------------------------------------------------|
+| Subcommand       | Always `check`                                      |
+| `line-length`    | Always `120` (set by the action)                    |
+| `target-version` | `python-version` input (default `3.10` → `py310`)   |
+| `exclude`        | `exclude` input when set                            |
+| Other settings   | `pyproject.toml` / `ruff.toml` when present         |
+
+CLI flags from the action override the same keys in `pyproject.toml` for
+`line-length` and `target-version`. Use `pyproject.toml` for advanced lint
+configuration.
+
+**Advanced usage** — see [`made/pyproject.toml`](../made/pyproject.toml) for a
+full example:
 
 ```toml
 [tool.ruff]
+extend-exclude = [
+    "src/js",
+    "tests/fixtures",
+    "tests/py/unit/fixtures"
+]
 line-length = 120
 target-version = "py310"
-extend-exclude = ["examples/**/*.py"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
 ```
 
-**Requirements-only projects** (no `pyproject.toml`) — pass lint settings via `ruff-args`:
-
-```yaml
-- uses: ./actions/py/lint
-  with:
-    ruff-args: check --line-length=120 --target-version=py310 --exclude some/path
-```
+Note: `line-length` and `target-version` in `pyproject.toml` apply locally (e.g.
+pre-commit); in CI the action still passes `--line-length=120` and
+`--target-version` from `python-version`.
 
 **Optional inputs:**
 
-| Input          | Default  | Description |
-|----------------|----------|-------------|
-| `ruff-args`    | `check`  | Arguments passed to Ruff |
-| `ruff-version` | `latest` | Ruff version to install (e.g. `0.15.20`) |
+| Input            | Default   | Description                                           |
+|------------------|-----------|-------------------------------------------------------|
+| `python-version` | `3.10`    | Maps to Ruff `target-version` (`3.10` → `py310`)    |
+| `exclude`        | _(empty)_ | Path pattern passed as `--exclude`                    |
+| `ruff-version`   | `0.0.270` | Ruff release to install                               |
 
 ```yaml
 - uses: ./actions/py/lint
   with:
-    ruff-version: 0.15.20
-    ruff-args: check
+    python-version: '3.10'
+    exclude: some/path
+    ruff-version: 0.0.270
 ```
 
 ### Yamllint usage
