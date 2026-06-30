@@ -41,5 +41,5 @@ runs:
         echo "latest tag: ${LATEST_TAG}"
         echo "create new tag: ${{ inputs.create-new-tag }}"
         echo "new tag: ${TAG_NAME}"
-        echo "::set-output name=tag-name::$(echo ${TAG_NAME})"
+        echo "tag-name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
 

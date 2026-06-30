@@ -1,6 +1,6 @@
 # Actions
 
-Composite github actions for CICD workflows. These actions are meant to 
+Composite github actions for CICD workflows. These actions are meant to
 reduce the repetitive logic in individual code repositories by providing
 functionality that downstream repos can reuse. Actions are organized
 by `domain/purpose/action` where `domain` is the programming language
@@ -11,7 +11,7 @@ them.
 ### Usage
 
 These actions are not standalone, and are intended to be used in other workflows.
-For example, as used in [Periodic Table](https://github.com/Exabyte-io/periodic-table.js),
+For example, as used in [Periodic Table](https://github.com/mat3ra/periodic-table.js),
 a workflow using one of these actions might look like:
 
 ```yaml
@@ -22,10 +22,10 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2  # checks out downstream repository
-      - uses: actions/checkout@v2  # checks out actions repository
+      - uses: actions/checkout@v7  # checks out downstream repository
+      - uses: actions/checkout@v7  # checks out actions repository
         with:
-          repository: Exabyte-io/actions
+          repository: mat3ra/actions
           token: ${{ secrets.TOKEN }}
           path: actions
 
@@ -39,6 +39,76 @@ where the workflow in the Periodic Table repository uses the [js/test/action](js
 from the `main` branch in this repository. In the example, the `actions` repository is cloned into
 a relative directory called `actions`. Actions which refer to other actions in this repository
 assume this convention and they should be referred to locally as `./actions/.../...`.
+
+### Py/lint usage
+
+Runs [Ruff](https://docs.astral.sh/ruff/) via
+[`astral-sh/ruff-action`](https://github.com/astral-sh/ruff-action).
+
+**Default invocation:**
+
+```yaml
+- uses: ./actions/py/lint
+```
+
+This runs:
+
+```text
+ruff check --line-length=120 --target-version=py310
+```
+
+(`py310` comes from the default `python-version: '3.10'`.)
+
+**How configuration is resolved**
+
+| Setting          | Source in CI                                        |
+|------------------|-----------------------------------------------------|
+| Subcommand       | Always `check`                                      |
+| `line-length`    | Always `120` (set by the action)                    |
+| `target-version` | `python-version` input (default `3.10` → `py310`)   |
+| `exclude`        | `exclude` input when set                            |
+| Other settings   | `pyproject.toml` / `ruff.toml` when present         |
+
+CLI flags from the action override the same keys in `pyproject.toml` for
+`line-length` and `target-version`. Use `pyproject.toml` for advanced lint
+configuration.
+
+**Advanced usage** — see [`made/pyproject.toml`](../made/pyproject.toml) for a
+full example:
+
+```toml
+[tool.ruff]
+extend-exclude = [
+    "src/js",
+    "tests/fixtures",
+    "tests/py/unit/fixtures"
+]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+```
+
+Note: `line-length` and `target-version` in `pyproject.toml` apply locally (e.g.
+pre-commit); in CI the action still passes `--line-length=120` and
+`--target-version` from `python-version`.
+
+**Optional inputs:**
+
+| Input            | Default   | Description                                           |
+|------------------|-----------|-------------------------------------------------------|
+| `python-version` | `3.10`    | Maps to Ruff `target-version` (`3.10` → `py310`)    |
+| `exclude`        | _(empty)_ | Path pattern passed as `--exclude`                    |
+| `ruff-version`   | `0.0.270` | Ruff release to install                               |
+
+```yaml
+- uses: ./actions/py/lint
+  with:
+    python-version: '3.10'
+    exclude: some/path
+    ruff-version: 0.0.270
+```
 
 ### Yamllint usage
 
@@ -105,7 +175,7 @@ There are some useful things to keep in mind when using these publish actions:
  - Workflows that interact directly with Github (like publish actions) avoid
    infinite recursion with downstream workflows triggered on `[push]` because events
    triggered by access tokens do not interact with Github actions. See
-   [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token) 
+   [this page](https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token)
    for details.
 
 
