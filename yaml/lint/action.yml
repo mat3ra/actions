@@ -10,7 +10,7 @@ inputs:
   python-version:
     description: Version of Python to use
     required: false
-    default: '3.8'
+    default: '3.10'
 
   skip-setup-python:
     description: Whether to skip Python setup
@@ -41,4 +41,3 @@ runs:
     - name: Run linter
       shell: bash -l {0}
       run: yamllint ${{ inputs.targets }}
-
