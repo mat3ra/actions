@@ -15,7 +15,7 @@ inputs:
     required: true
     default: ''
   assets:
-    description: optional multiline list of asset paths to attach to the release (one path per line)
+    description: optional asset paths to attach to the release, one path per line
     required: false
     default: ''
 
@@ -48,4 +48,7 @@ runs:
             [[ -z "${asset}" ]] && continue
             ASSET_ARGS+=("${asset}")
           done <<< "${RELEASE_ASSETS}"
-          gh release create ${{ inputs.tag-name }} --title "v${{ inputs.tag-name }}" --notes "${NOTES}" "${ASSET_ARGS[@]}"
+          gh release create ${{ inputs.tag-name }} \
+            --title "v${{ inputs.tag-name }}" \
+            --notes "${NOTES}" \
+            "${ASSET_ARGS[@]}"
