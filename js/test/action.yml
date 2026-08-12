@@ -39,6 +39,12 @@ inputs:
     description: Add options to npm install
     required: false
     default: ''
+  post-npm-install:
+    description: |
+      Optional shell snippet run in package-directory after npm install
+      (and chromedriver, if enabled) and before build/test.
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -72,6 +78,11 @@ runs:
         cd ${{ inputs.package-directory }}
         npm i ${{ inputs.npm-options }} chromedriver@${CHROMEDRIVER_VERSION} || npm i ${{ inputs.npm-options }} chromedriver@${{ inputs.chromedriver-version }}
       # yamllint enable rule:line-length
+    - name: Post npm install
+      if: inputs.post-npm-install != ''
+      shell: bash -l {0}
+      working-directory: ${{ inputs.package-directory }}
+      run: ${{ inputs.post-npm-install }}
     - name: Build
       shell: bash -l {0}
       run: cd ${{ inputs.package-directory }} && npm run build --if-present
