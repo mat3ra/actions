@@ -1,0 +1,81 @@
+---
+# Bootstrap a multi-consumer root (mat3ra/web-app) and place a package consumer
+# under it so references:sync / references:install match local layout.
+#
+# Typical library CI (e.g. code):
+#   - checkout mat3ra/actions -> actions/
+#   - uses: ./actions/js/mat3ra-references-workspace
+#       web-app-path: web-app
+#       consumer-path: web-app/reference/code
+#   - ssh-agent + BOT_GITHUB_KEY
+#   - uses: ./actions/js/test
+#       package-directory: web-app/reference/code
+#       post-npm-install: references:sync + references:install
+#
+# Web-app CI already has the root: skip-root-checkout + checkout-package false.
+name: Mat3ra references workspace
+inputs:
+  github-token:
+    description: Token with access to mat3ra/web-app and the package repo
+    required: true
+  web-app-ref:
+    description: Git ref for mat3ra/web-app (multi-consumer root)
+    required: false
+    default: main
+  web-app-path:
+    description: |
+      Workspace-relative path for the web-app checkout. Prefer a subdirectory
+      (default web-app) so a sibling actions/ checkout is not wiped.
+    required: false
+    default: web-app
+  consumer-path:
+    description: |
+      Workspace-relative path for the package under test
+      (e.g. web-app/reference/code or web-app/src/application).
+    required: true
+  package-repository:
+    description: |
+      GitHub repository for the package under test (owner/name).
+      Defaults to the calling repository.
+    required: false
+    default: ''
+  package-ref:
+    description: |
+      Git ref/SHA for the package under test. Defaults to github.sha.
+    required: false
+    default: ''
+  skip-root-checkout:
+    description: Set true when the workspace is already mat3ra/web-app
+    required: false
+    default: 'false'
+  checkout-package:
+    description: Set false when the consumer path is already populated
+    required: false
+    default: 'true'
+  lfs:
+    description: Enable Git LFS on checkouts
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout multi-consumer root
+      if: inputs.skip-root-checkout != 'true'
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        repository: mat3ra/web-app
+        ref: ${{ inputs.web-app-ref }}
+        token: ${{ inputs.github-token }}
+        path: ${{ inputs.web-app-path }}
+        lfs: ${{ inputs.lfs == 'true' }}
+
+    - name: Checkout package under test
+      if: inputs.checkout-package == 'true'
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        repository: ${{ inputs.package-repository || github.repository }}
+        ref: ${{ inputs.package-ref || github.sha }}
+        token: ${{ inputs.github-token }}
+        path: ${{ inputs.consumer-path }}
+        lfs: ${{ inputs.lfs == 'true' }}
