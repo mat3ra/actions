@@ -161,6 +161,31 @@ There are some useful things to keep in mind when using these publish actions:
      for justification of this behavior.
 5. Make sure the `exabyte-io-bot` has `write` permissions to the repository you're publishing!
 
+### JS release-wip usage
+
+`js/release-wip/action` is **not** a real npm/PyPI publish — it builds a package and
+uploads the result as a GitHub **pre-release tarball asset**, tagged after the current
+branch, so a not-yet-mergeable WIP branch can be installed by consumers
+(`npm install @scope/pkg@<release-asset-url>`) without the package committing its build
+output (e.g. `dist/`) to git.
+
+```yaml
+- uses: ./actions/js/release-wip
+  with:
+    package-name: esse
+    build-script: transpile-and-build-assets
+    github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+```
+
+- The tag/asset name defaults to a slug of the current branch (`chore/SOF-7942-1` →
+  `chore-sof-7942-1`), so re-running the workflow on the same branch updates the existing
+  release/asset in place (`gh release upload ... --clobber`) instead of minting a new tag.
+- `build-script` defaults to `transpile`; override it per package (e.g. `esse` needs
+  `transpile-and-build-assets`).
+- Gate the calling workflow's job on whatever trigger you want (e.g.
+  `if: contains(github.event.head_commit.message, '[release]')`) — this action always
+  publishes when invoked, it does not decide when to run.
+
 ### Notes:
 
  - Because we opt to not track the version of a published package in git, the `version`
