@@ -25,7 +25,7 @@ inputs:
       Release tag to publish under. Defaults to `wip-<short-commit-sha>` (the current
       commit being built), so each commit gets its own immutable tag/asset URL.
     required: false
-    default: ""
+    default: ''
   github-token:
     description: grants access to publish releases to github
     required: true
