@@ -1,0 +1,48 @@
+---
+
+name: Clean Up Stale WIP Release Tarballs
+description: |
+  Deletes pre-releases published by js/release-wip whose commit is no longer the tip of
+  any branch (the branch was merged/deleted, or moved on to a newer commit) - a "merged
+  branch aware" cleanup rather than plain age-based deletion. A release stays as long as
+  its commit is still live at the head of some branch, however old it is.
+inputs:
+  tag-prefix:
+    description: Only consider releases whose tag starts with this prefix
+    required: false
+    default: wip-
+  dry-run:
+    description: If true, log what would be deleted without deleting anything
+    required: false
+    default: 'false'
+  github-token:
+    description: grants access to list/delete releases and read branch refs
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Delete stale WIP releases
+      shell: bash -l {0}
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        set -euo pipefail
+        PREFIX="${{ inputs.tag-prefix }}"
+        DRY_RUN="${{ inputs.dry-run }}"
+
+        LIVE_SHAS=$(git ls-remote --heads origin | awk '{print $1}')
+
+        gh release list --limit 1000 --json tagName -q \
+          ".[] | select(.tagName | startswith(\"${PREFIX}\")) | .tagName" |
+        while IFS= read -r tag; do
+          sha="${tag#"${PREFIX}"}"
+          if echo "${LIVE_SHAS}" | grep -q "^${sha}"; then
+            echo "Keeping ${tag} (${sha} is still a branch tip)"
+          else
+            echo "Deleting ${tag} (${sha} is no longer any branch's tip)"
+            if [[ "${DRY_RUN}" != "true" ]]; then
+              gh release delete "${tag}" --yes --cleanup-tag
+            fi
+          fi
+        done

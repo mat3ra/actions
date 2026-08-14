@@ -189,6 +189,31 @@ output (e.g. `dist/`) to git.
   `if: contains(github.event.head_commit.message, '[release]')`) — this action always
   publishes when invoked, it does not decide when to run.
 
+### JS cleanup-wip-releases usage
+
+Companion to `js/release-wip`: deletes `wip-*` pre-releases (and their git tags) whose
+commit is no longer the tip of any branch — i.e. the branch that produced it was merged
+and deleted, or moved on to a newer commit that already has its own release. This is
+**branch-aware, not age-based**: a release stays as long as its commit is still live at
+the head of some branch, no matter how old it is; it's only deleted once that branch has
+moved past it or is gone.
+
+```yaml
+- uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+- uses: ./actions/js/cleanup-wip-releases
+  with:
+    github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+```
+
+- Requires the calling repository (not just `mat3ra/actions`) to be checked out first, so
+  `git ls-remote --heads origin` resolves against it.
+- Intended to run on a schedule (`on: schedule`) in each package's own workflow, since
+  GitHub Actions cron triggers are per-repository. Add `workflow_dispatch` too so it can
+  be run/tested on demand.
+- `dry-run: 'true'` logs keep/delete decisions without deleting anything — use this for
+  manual test runs.
+- `tag-prefix` defaults to `wip-`, matching `js/release-wip`'s tag scheme.
+
 ### Notes:
 
  - Because we opt to not track the version of a published package in git, the `version`
