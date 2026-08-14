@@ -198,6 +198,11 @@ and deleted, or moved on to a newer commit that already has its own release. Thi
 the head of some branch, no matter how old it is; it's only deleted once that branch has
 moved past it or is gone.
 
+**Hard safety check**: a release is only ever a deletion candidate if
+`isPrerelease == true` — checked once when listing candidates and again immediately
+before each individual deletion. A real (non-pre-release) release is never deleted by
+this action, regardless of its tag.
+
 ```yaml
 - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 - uses: ./actions/js/cleanup-wip-releases

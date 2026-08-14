@@ -5,7 +5,10 @@ description: |
   Deletes pre-releases published by js/release-wip whose commit is no longer the tip of
   any branch (the branch was merged/deleted, or moved on to a newer commit) - a "merged
   branch aware" cleanup rather than plain age-based deletion. A release stays as long as
-  its commit is still live at the head of some branch, however old it is.
+  its commit is still live at the head of some branch, however old it is. Never deletes
+  a release that isn't marked pre-release (`isPrerelease == true`), under any
+  circumstances, regardless of tag-prefix - checked twice, once when listing candidates
+  and again immediately before each deletion.
 inputs:
   tag-prefix:
     description: Only consider releases whose tag starts with this prefix
@@ -33,8 +36,11 @@ runs:
 
         LIVE_SHAS=$(git ls-remote --heads origin | awk '{print $1}')
 
-        gh release list --limit 1000 --json tagName -q \
-          ".[] | select(.tagName | startswith(\"${PREFIX}\")) | .tagName" |
+        # Hard safety check: never touch a release that isn't marked pre-release, no
+        # matter what its tag looks like. This is a second, independent gate on top of
+        # the tag-prefix filter, not a substitute for it.
+        gh release list --limit 1000 --json tagName,isPrerelease -q \
+          ".[] | select(.isPrerelease == true) | select(.tagName | startswith(\"${PREFIX}\")) | .tagName" |
         while IFS= read -r tag; do
           sha="${tag#"${PREFIX}"}"
           if echo "${LIVE_SHAS}" | grep -q "^${sha}"; then
@@ -42,6 +48,13 @@ runs:
           else
             echo "Deleting ${tag} (${sha} is no longer any branch's tip)"
             if [[ "${DRY_RUN}" != "true" ]]; then
+              # Re-check immediately before deleting - never delete anything that isn't
+              # (still) marked pre-release, even if the listing above was somehow stale.
+              is_prerelease=$(gh release view "${tag}" --json isPrerelease -q .isPrerelease)
+              if [[ "${is_prerelease}" != "true" ]]; then
+                echo "REFUSING to delete ${tag}: not marked pre-release" >&2
+                continue
+              fi
               gh release delete "${tag}" --yes --cleanup-tag
             fi
           fi
