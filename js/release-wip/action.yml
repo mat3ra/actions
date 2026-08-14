@@ -1,11 +1,11 @@
 ---
-
 name: Publish WIP Release Tarball
 description: |
   Builds the package and publishes it as a GitHub pre-release tarball asset tagged after
-  the current branch, so consumers can install a not-yet-mergeable WIP branch without the
-  package needing to commit its build output (e.g. dist/) to git. Re-running on the same
-  branch updates the existing release/asset in place rather than minting a new tag.
+  the current commit, so consumers can install a not-yet-mergeable WIP commit without the
+  package needing to commit its build output (e.g. dist/) to git. Each commit gets its own
+  immutable tag/asset - re-running on the same commit (e.g. a re-triggered workflow)
+  updates that commit's release/asset in place rather than minting a duplicate.
 inputs:
   node-version:
     description: Version of Node to use
@@ -22,11 +22,10 @@ inputs:
     default: transpile
   tag-name:
     description: |
-      Release tag to publish under. Defaults to a slug derived from the current branch
-      name (lowercased, "/" and "_" replaced with "-", other non-alphanumeric characters
-      stripped) so repeated runs on the same branch reuse the same tag/asset URL.
+      Release tag to publish under. Defaults to `wip-<short-commit-sha>` (the current
+      commit being built), so each commit gets its own immutable tag/asset URL.
     required: false
-    default: ''
+    default: ""
   github-token:
     description: grants access to publish releases to github
     required: true
@@ -65,7 +64,7 @@ runs:
         if [[ -n "${{ inputs.tag-name }}" ]]; then
           TAG_NAME="${{ inputs.tag-name }}"
         else
-          TAG_NAME=$(echo "${{ github.ref_name }}" | tr '[:upper:]/_' '[:lower:]--' | sed 's/[^a-z0-9-]//g')
+          TAG_NAME="wip-$(echo "${{ github.sha }}" | cut -c1-7)"
         fi
         echo "tag name: ${TAG_NAME}"
         echo "tag-name=${TAG_NAME}" >> "$GITHUB_OUTPUT"

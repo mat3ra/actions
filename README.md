@@ -165,7 +165,7 @@ There are some useful things to keep in mind when using these publish actions:
 
 `js/release-wip/action` is **not** a real npm/PyPI publish — it builds a package and
 uploads the result as a GitHub **pre-release tarball asset**, tagged after the current
-branch, so a not-yet-mergeable WIP branch can be installed by consumers
+commit, so a not-yet-mergeable WIP commit can be installed by consumers
 (`npm install @scope/pkg@<release-asset-url>`) without the package committing its build
 output (e.g. `dist/`) to git.
 
@@ -177,9 +177,12 @@ output (e.g. `dist/`) to git.
     github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
 ```
 
-- The tag/asset name defaults to a slug of the current branch (`chore/SOF-7942-1` →
-  `chore-sof-7942-1`), so re-running the workflow on the same branch updates the existing
-  release/asset in place (`gh release upload ... --clobber`) instead of minting a new tag.
+- The tag/asset name defaults to `wip-<short-commit-sha>` (e.g. `wip-e8ed741`), so every
+  commit gets its own immutable tag/asset URL — no cache/integrity headaches for consumers
+  from a URL whose content silently changed underneath the same tag. Re-running the
+  workflow on the same commit (e.g. a manual re-trigger) updates that commit's
+  release/asset in place (`gh release upload ... --clobber`) rather than minting a
+  duplicate.
 - `build-script` defaults to `transpile`; override it per package (e.g. `esse` needs
   `transpile-and-build-assets`).
 - Gate the calling workflow's job on whatever trigger you want (e.g.
