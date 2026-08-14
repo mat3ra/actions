@@ -39,8 +39,9 @@ runs:
         # Hard safety check: never touch a release that isn't marked pre-release, no
         # matter what its tag looks like. This is a second, independent gate on top of
         # the tag-prefix filter, not a substitute for it.
-        gh release list --limit 1000 --json tagName,isPrerelease -q \
-          ".[] | select(.isPrerelease == true) | select(.tagName | startswith(\"${PREFIX}\")) | .tagName" |
+        JQ_FILTER='.[] | select(.isPrerelease == true)'
+        JQ_FILTER="${JQ_FILTER} | select(.tagName | startswith(\"${PREFIX}\")) | .tagName"
+        gh release list --limit 1000 --json tagName,isPrerelease -q "${JQ_FILTER}" |
         while IFS= read -r tag; do
           sha="${tag#"${PREFIX}"}"
           if echo "${LIVE_SHAS}" | grep -q "^${sha}"; then
