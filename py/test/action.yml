@@ -66,7 +66,7 @@ runs:
       run: python -m venv .venv
 
     - name: Setup Python Environment
-      uses: ./actions/py/env
+      uses: mat3ra/actions/py/env@main
       with:
         pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
         pypi-mat3ra-com-password: ${{ inputs.pypi-mat3ra-com-password }}

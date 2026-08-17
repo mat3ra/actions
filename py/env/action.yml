@@ -14,19 +14,21 @@ runs:
   steps:
     - name: Set Environment
       shell: bash -l {0}
-      run: sed "" ./actions/py/env/env >> $GITHUB_ENV
+      run: sed "" "${{ github.action_path }}/env" >> $GITHUB_ENV
     - name: Set Pip Configuration File
       if: inputs.pypi-mat3ra-com-user != '' && inputs.pypi-mat3ra-com-password != ''
       shell: bash -l {0}
+      env:
+        PYPI_USER: ${{ inputs.pypi-mat3ra-com-user }}
+        PYPI_PASSWORD: ${{ inputs.pypi-mat3ra-com-password }}
       run: |
         # Setup config file
         mkdir -p ~/.pip
-        cat ./actions/py/env/pip.conf >> ~/.pip/pip.conf
+        cat "${{ github.action_path }}/pip.conf" >> ~/.pip/pip.conf
         # Setup basic authentication
         cat > ~/.netrc << EOF
         machine pypi.mat3ra.com
-        login ${{ inputs.pypi-mat3ra-com-user }}
-        password ${{ inputs.pypi-mat3ra-com-password }}
+        login ${PYPI_USER}
+        password ${PYPI_PASSWORD}
         EOF
-        # Remove leading whitespace (just in case)
-        sed -i 's/^[t ]*//g' ~/.netrc
+        chmod 600 ~/.netrc

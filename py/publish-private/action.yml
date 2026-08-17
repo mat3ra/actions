@@ -36,17 +36,17 @@ runs:
   steps:
 
     - name: Configure Repository
-      uses: ./actions/git/config
+      uses: mat3ra/actions/git/config@main
       with:
         github-token: ${{ inputs.github-token }}
     - name: Determine git tag
       id: get-tag-name
-      uses: ./actions/git/version
+      uses: mat3ra/actions/git/version@main
       with:
         create-new-tag: ${{ inputs.publish-tag }}
     - name: Publish new git tag and release
       if: inputs.publish-tag == 'true'
-      uses: ./actions/git/release
+      uses: mat3ra/actions/git/release@main
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
@@ -56,7 +56,7 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
     - name: Setup Python Environment
-      uses: ./actions/py/env
+      uses: mat3ra/actions/py/env@main
       with:
         pypi-mat3ra-com-user: ${{ inputs.pypi-mat3ra-com-user }}
         pypi-mat3ra-com-password: ${{ inputs.pypi-mat3ra-com-password }}

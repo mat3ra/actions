@@ -1,3 +1,5 @@
+[![License: Apache](https://img.shields.io/badge/License-Apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+
 # Actions
 
 Composite github actions for CICD workflows. These actions are meant to
@@ -8,37 +10,58 @@ and `purpose` is the intent of the action. By default, actions take the
 name `action.yml`, hence the use of a directory structure to differentiate
 them.
 
+Although these actions are used to support the repositories of
+[mat3ra.com](https://mat3ra.com), they are generic and can be used elsewhere.
+
 ### Usage
 
-These actions are not standalone, and are intended to be used in other workflows.
-For example, as used in [Periodic Table](https://github.com/mat3ra/periodic-table.js),
-a workflow using one of these actions might look like:
+These actions are not standalone, and are intended to be used in other workflows —
+for example in [Periodic Table](https://github.com/mat3ra/periodic-table).
+Reference an action by its path in this repository, followed by a ref:
 
 ```yaml
-
-...
-
 jobs:
   run-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7  # checks out downstream repository
-      - uses: actions/checkout@v7  # checks out actions repository
+      - uses: actions/checkout@v7  # checks out the calling repository
+      - uses: mat3ra/actions/js/test@main
+```
+
+Use a tag or a commit SHA in place of `@main` to insulate a calling repository from
+changes made here.
+
+#### Legacy checkout convention
+
+While this repository was private, callers had to check it out into a relative
+`actions/` directory using a token, and then refer to actions as `./actions/.../...`:
+
+```yaml
+      - uses: actions/checkout@v7  # checks out the calling repository
+      - uses: actions/checkout@v7  # checks out this repository
         with:
           repository: mat3ra/actions
           token: ${{ secrets.TOKEN }}
           path: actions
 
       - uses: ./actions/js/test
-
-...
-
 ```
 
-where the workflow in the Periodic Table repository uses the [js/test/action](js/test/action.yml)
-from the `main` branch in this repository. In the example, the `actions` repository is cloned into
-a relative directory called `actions`. Actions which refer to other actions in this repository
-assume this convention and they should be referred to locally as `./actions/.../...`.
+Existing callers using this form keep working, but the token and the second checkout
+are no longer needed and can be dropped. One action still requires this convention:
+`docker/validate` runs hadolint as a Docker action, and Docker actions can only read
+files under `$GITHUB_WORKSPACE`, so its bundled `.hadolint.yml` cannot be resolved
+when the action is referenced remotely.
+
+#### Pinning caveat for composed actions
+
+Some actions here call sibling actions in this repository (for example `py/publish`
+calls `git/config`, `git/version` and `git/release`). Those nested calls are written as
+`mat3ra/actions/<path>@main`, because `uses:` cannot take an expression and so cannot
+forward the ref the caller used. A repository that pins this one to a branch or tag
+still gets `main` for those nested steps. Testing a change to `js/publish`, `js/test`,
+`py/publish`, `py/publish-private`, `py/test` or `py/pytest` end to end therefore needs
+the change on `main`, or the nested refs temporarily repointed on the branch.
 
 ### Py/lint usage
 
@@ -48,7 +71,7 @@ Runs [Ruff](https://docs.astral.sh/ruff/) via
 **Default invocation:**
 
 ```yaml
-- uses: ./actions/py/lint
+- uses: mat3ra/actions/py/lint@main
 ```
 
 This runs:
@@ -73,7 +96,8 @@ CLI flags from the action override the same keys in `pyproject.toml` for
 `line-length` and `target-version`. Use `pyproject.toml` for advanced lint
 configuration.
 
-**Advanced usage** — see [`made/pyproject.toml`](../made/pyproject.toml) for a
+**Advanced usage** — see
+[`made/pyproject.toml`](https://github.com/mat3ra/made/blob/main/pyproject.toml) for a
 full example:
 
 ```toml
@@ -103,7 +127,7 @@ pre-commit); in CI the action still passes `--line-length=120` and
 | `ruff-version`   | `0.0.270` | Ruff release to install                               |
 
 ```yaml
-- uses: ./actions/py/lint
+- uses: mat3ra/actions/py/lint@main
   with:
     python-version: '3.10'
     exclude: some/path
@@ -245,7 +269,7 @@ jobs:
  - Because we opt to not track the version of a published package in git, the `version`
    parameter in `package.json` is unrelated to the state of published code. Please use
    git tags to check out published code.
- - Calling workflows must still use `actions/checkout@v2` before these actions.
+ - Calling workflows must still use `actions/checkout` before these actions.
    If the repository has `lfs` assets, include `with lfs: true` there.
  - Expression evaluation can be tricky in Github actions. Please see the caveats about
    [Expressions](https://docs.github.com/en/actions/learn-github-actions/expressions#literals).
@@ -266,3 +290,7 @@ release with the same version. Future work could benefit from downstream
 repositories that adhere to the use of commit tools like `commitlint` or
 `commitizen` and `semantic-release` to fill in details such as release
 notes.
+
+### License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE.md](LICENSE.md).
