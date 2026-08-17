@@ -10,7 +10,7 @@ inputs:
   node-version:
     description: Version of Node to use
     required: false
-    default: 20.x
+    default: 24.x
   package-name:
     description: |
       Name of the package being released, e.g. "esse". Used for the asset filename
