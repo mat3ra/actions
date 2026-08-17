@@ -161,33 +161,22 @@ There are some useful things to keep in mind when using these publish actions:
      for justification of this behavior.
 5. Make sure the `exabyte-io-bot` has `write` permissions to the repository you're publishing!
 
-### release-wip usage (reusable workflow)
+### JS release-wip usage
 
-`.github/workflows/release-wip.yml` is **not** a real npm/PyPI publish — it builds a
-package and uploads the result as a GitHub **pre-release tarball asset**, tagged after
-the current commit, so a not-yet-mergeable WIP commit can be installed by consumers
+`js/release-wip/action` is **not** a real npm/PyPI publish — it builds a package and
+uploads the result as a GitHub **pre-release tarball asset**, tagged after the current
+commit, so a not-yet-mergeable WIP commit can be installed by consumers
 (`npm install @scope/pkg@<release-asset-url>`) without the package committing its build
-output (e.g. `dist/`) to git. Unlike the composite-action pattern used elsewhere in this
-repo, this is a [reusable workflow](https://docs.github.com/en/actions/using-workflows/reusing-workflows)
-(`on: workflow_call`) — callers don't need their own checkout-of-`mat3ra/actions` step,
-they just call it directly:
+output (e.g. `dist/`) to git.
 
 ```yaml
-name: Publish WIP release tarball
-on: push
-jobs:
-  release-wip:
-    uses: mat3ra/actions/.github/workflows/release-wip.yml@main
-    with:
-      package-name: esse
-      build-script: transpile-and-build-assets
-    secrets:
-      github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+- uses: ./actions/js/release-wip
+  with:
+    package-name: esse
+    build-script: transpile-and-build-assets
+    github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
 ```
 
-- The job itself gates on `contains(github.event.head_commit.message, '[release]')`
-  internally, so pushing a commit with `[release]` in its message is what triggers a
-  publish — no `if:` needed on the caller's job.
 - The tag/asset name defaults to `wip-<short-commit-sha>` (e.g. `wip-e8ed741`), so every
   commit gets its own immutable tag/asset URL — no cache/integrity headaches for consumers
   from a URL whose content silently changed underneath the same tag. Re-running the
@@ -196,13 +185,13 @@ jobs:
   duplicate.
 - `build-script` defaults to `transpile`; override it per package (e.g. `esse` needs
   `transpile-and-build-assets`).
-- Calling a reusable workflow in this private repo from another repo requires this
-  repo's Settings → Actions → General → Access to permit that caller (e.g. "Accessible
-  from repositories in the 'mat3ra' organization").
+- Gate the calling workflow's job on whatever trigger you want (e.g.
+  `if: contains(github.event.head_commit.message, '[release]')`) — this action always
+  publishes when invoked, it does not decide when to run.
 
-### cleanup-wip-releases usage (reusable workflow)
+### JS cleanup-wip-releases usage
 
-Companion to `release-wip`: deletes `wip-*` pre-releases (and their git tags) whose
+Companion to `js/release-wip`: deletes `wip-*` pre-releases (and their git tags) whose
 commit is no longer the tip of any branch — i.e. the branch that produced it was merged
 and deleted, or moved on to a newer commit that already has its own release. This is
 **branch-aware, not age-based**: a release stays as long as its commit is still live at
@@ -212,33 +201,23 @@ moved past it or is gone.
 **Hard safety check**: a release is only ever a deletion candidate if
 `isPrerelease == true` — checked once when listing candidates and again immediately
 before each individual deletion. A real (non-pre-release) release is never deleted by
-this workflow, regardless of its tag.
+this action, regardless of its tag.
 
 ```yaml
-name: Clean up stale WIP release tarballs
-on:
-  schedule:
-    - cron: '0 6 * * 1' # every Monday 06:00 UTC
-  workflow_dispatch:
-    inputs:
-      dry-run:
-        type: boolean
-        default: true
-jobs:
-  cleanup-wip-releases:
-    uses: mat3ra/actions/.github/workflows/cleanup-wip-releases.yml@main
-    with:
-      # Scheduled runs always delete; workflow_dispatch defaults to dry-run.
-      dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || false }}
-    secrets:
-      github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+- uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+- uses: ./actions/js/cleanup-wip-releases
+  with:
+    github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
 ```
 
-- `dry-run: true` logs keep/delete decisions without deleting anything — use this for
+- Requires the calling repository (not just `mat3ra/actions`) to be checked out first, so
+  `git ls-remote --heads origin` resolves against it.
+- Intended to run on a schedule (`on: schedule`) in each package's own workflow, since
+  GitHub Actions cron triggers are per-repository. Add `workflow_dispatch` too so it can
+  be run/tested on demand.
+- `dry-run: 'true'` logs keep/delete decisions without deleting anything — use this for
   manual test runs.
-- `tag-prefix` defaults to `wip-`, matching `release-wip`'s tag scheme.
-- Cron triggers are per-repository in GitHub Actions, so this must be scheduled from each
-  package's own workflow file, not centrally from `mat3ra/actions`.
+- `tag-prefix` defaults to `wip-`, matching `js/release-wip`'s tag scheme.
 
 ### Notes:
 
