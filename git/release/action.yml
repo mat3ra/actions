@@ -46,14 +46,13 @@ runs:
         RELEASE_ASSETS: ${{ inputs.assets }}
       run: |
           NOTES="Release ${TAG_NAME} created by exabyte-io-bot"
-          ASSET_ARGS=()
+          ASSET_PATHS=()
+          # trim whitespace from each asset path
           while IFS= read -r asset || [[ -n "${asset}" ]]; do
             asset="${asset#"${asset%%[![:space:]]*}"}"
             asset="${asset%"${asset##*[![:space:]]}"}"
             [[ -z "${asset}" ]] && continue
-            ASSET_ARGS+=("${asset}")
+            ASSET_PATHS+=("${asset}")
           done <<< "${RELEASE_ASSETS}"
-          gh release create ${TAG_NAME} \
-            --title "v${TAG_NAME}" \
-            --notes "${NOTES}" \
-            "${ASSET_ARGS[@]}"
+          gh release create "${TAG_NAME}" --title "v${TAG_NAME}" \
+            --notes "${NOTES}" "${ASSET_PATHS[@]}"
