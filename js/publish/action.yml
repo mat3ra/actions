@@ -65,17 +65,17 @@ runs:
       run: cd ${{ inputs.package-directory }} && npm test
 
     - name: Configure repository
-      uses: ./actions/git/config
+      uses: mat3ra/actions/git/config@main
       with:
         github-token: ${{ inputs.github-token }}
     - name: Determine git tag
       id: get-tag-name
-      uses: ./actions/git/version
+      uses: mat3ra/actions/git/version@main
       with:
         create-new-tag: ${{ inputs.publish-tag }}
     - name: Publish new git tag and release
       if: inputs.publish-tag == 'true'
-      uses: ./actions/git/release
+      uses: mat3ra/actions/git/release@main
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.get-tag-name.outputs.tag-name }}

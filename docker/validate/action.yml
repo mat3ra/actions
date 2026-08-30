@@ -8,7 +8,11 @@ inputs:
     description: path to Dockerfile to lint
     required: true
   checked-out:
-    description: whether being used in a downstream repository
+    description: |
+      Whether this repository is checked out into ./actions in the caller's workspace.
+      hadolint runs as a Docker action, and Docker actions can only read files under
+      $GITHUB_WORKSPACE, so this is the one action here that cannot resolve its bundled
+      config when referenced remotely as mat3ra/actions/docker/validate@main.
     required: false
     default: true
 

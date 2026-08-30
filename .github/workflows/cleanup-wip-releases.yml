@@ -1,0 +1,63 @@
+---
+
+name: Clean up stale WIP releases (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      tag-prefix:
+        description: Only consider releases whose tag starts with this prefix
+        required: false
+        type: string
+        default: wip-
+      dry-run:
+        description: If true, log what would be deleted without deleting anything
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      github-token:
+        description: grants access to list/delete releases and read branch refs
+        required: true
+
+jobs:
+  cleanup-wip-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Delete stale WIP releases
+        env:
+          GH_TOKEN: ${{ secrets.github-token }}
+        run: |
+          set -euo pipefail
+          PREFIX="${{ inputs.tag-prefix }}"
+          DRY_RUN="${{ inputs.dry-run }}"
+
+          LIVE_SHAS=$(git ls-remote --heads origin | awk '{print $1}')
+
+          # Hard safety check: never touch a release that isn't marked pre-release, no
+          # matter what its tag looks like. This is a second, independent gate on top of
+          # the tag-prefix filter, not a substitute for it.
+          JQ_FILTER='.[] | select(.isPrerelease == true)'
+          JQ_FILTER="${JQ_FILTER} | select(.tagName | startswith(\"${PREFIX}\")) | .tagName"
+          gh release list --limit 1000 --json tagName,isPrerelease -q "${JQ_FILTER}" |
+          while IFS= read -r tag; do
+            sha="${tag#"${PREFIX}"}"
+            if echo "${LIVE_SHAS}" | grep -q "^${sha}"; then
+              echo "Keeping ${tag} (${sha} is still a branch tip)"
+            else
+              echo "Deleting ${tag} (${sha} is no longer any branch's tip)"
+              if [[ "${DRY_RUN}" != "true" ]]; then
+                # Re-check immediately before deleting - never delete anything that isn't
+                # (still) marked pre-release, even if the listing above was somehow stale.
+                is_prerelease=$(gh release view "${tag}" --json isPrerelease -q .isPrerelease)
+                if [[ "${is_prerelease}" != "true" ]]; then
+                  echo "REFUSING to delete ${tag}: not marked pre-release" >&2
+                  continue
+                fi
+                gh release delete "${tag}" --yes --cleanup-tag
+              fi
+            fi
+          done

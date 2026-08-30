@@ -25,22 +25,27 @@ runs:
 
     - name: Create git tag
       shell: bash -l {0}
-      run: git tag ${{ inputs.tag-name }}
+      env:
+        TAG_NAME: ${{ inputs.tag-name }}
+      run: git tag "${TAG_NAME}"
 
     - name: Push Tag To Remote
       if: inputs.skip-publish == ''
       shell: bash -l {0}
+      env:
+        TAG_NAME: ${{ inputs.tag-name }}
       run: |
-          git push origin ${{ inputs.tag-name }}
+          git push origin "${TAG_NAME}"
           sleep 15  # give github time to register the tag before publishing
 
     - name: Create Release
       if: inputs.skip-publish == ''
       shell: bash -l {0}
       env:
+        TAG_NAME: ${{ inputs.tag-name }}
         RELEASE_ASSETS: ${{ inputs.assets }}
       run: |
-          NOTES="Release ${{ inputs.tag-name }} created by exabyte-io-bot"
+          NOTES="Release ${TAG_NAME} created by exabyte-io-bot"
           ASSET_ARGS=()
           while IFS= read -r asset || [[ -n "${asset}" ]]; do
             asset="${asset#"${asset%%[![:space:]]*}"}"
@@ -48,7 +53,7 @@ runs:
             [[ -z "${asset}" ]] && continue
             ASSET_ARGS+=("${asset}")
           done <<< "${RELEASE_ASSETS}"
-          gh release create ${{ inputs.tag-name }} \
-            --title "v${{ inputs.tag-name }}" \
+          gh release create ${TAG_NAME} \
+            --title "v${TAG_NAME}" \
             --notes "${NOTES}" \
             "${ASSET_ARGS[@]}"

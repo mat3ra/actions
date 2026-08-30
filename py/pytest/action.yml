@@ -40,7 +40,7 @@ runs:
         python-version: ${{ inputs.python-version }}
 
     - name: Setup Python Environment
-      uses: ./actions/py/env
+      uses: mat3ra/actions/py/env@main
 
     - name: Install dependencies
       shell: bash -l {0}
@@ -52,7 +52,9 @@ runs:
 
     - name: Set Environment Variables
       shell: bash -l {0}
-      run: echo "${{ inputs.environment }}" >> $GITHUB_ENV
+      env:
+        EXTRA_ENVIRONMENT: ${{ inputs.environment }}
+      run: echo "${EXTRA_ENVIRONMENT}" >> $GITHUB_ENV
 
     - name: Run unit tests
       if: inputs.unit-test-directory != ''

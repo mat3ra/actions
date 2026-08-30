@@ -35,25 +35,25 @@ runs:
   steps:
 
     - name: Configure Repository
-      uses: ./actions/git/config
+      uses: mat3ra/actions/git/config@main
       with:
         github-token: ${{ inputs.github-token }}
     - name: Determine git tag
       id: get-tag-name
-      uses: ./actions/git/version
+      uses: mat3ra/actions/git/version@main
 
     # Only one of the two steps below should run depending on the `publish-tag` value
     # B/c setuptools scm requires a tag it has to be created, but for dual-purpose JS/PY
     # packages, the tag may be published as part of JS pipeline, hence the tag-only case
     - name: Publish new git tag and release
       if: inputs.publish-tag == 'true'
-      uses: ./actions/git/release
+      uses: mat3ra/actions/git/release@main
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
     - name: Only create new git tag locally for Setuptools SCM versioning logic
       if: inputs.publish-tag != 'true'
-      uses: ./actions/git/release
+      uses: mat3ra/actions/git/release@main
       with:
         github-token: ${{ inputs.github-token }}
         tag-name: ${{ steps.get-tag-name.outputs.tag-name }}
@@ -66,7 +66,7 @@ runs:
         python-version: ${{ inputs.python-version }}
     - name: Setup Python Environment
       if: inputs.pypi-api-token != '' && inputs.publish-to-pypi == 'true'
-      uses: ./actions/py/env
+      uses: mat3ra/actions/py/env@main
     - name: Install Dependencies
       if: inputs.pypi-api-token != '' && inputs.publish-to-pypi == 'true'
       shell: bash -l {0}

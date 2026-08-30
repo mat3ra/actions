@@ -12,30 +12,27 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Form the Repor URL with Auth.
-      shell: bash -l {0}
-      run: |
-        # configure git repository for downstream interaction
-        if [ ! -z "${{ inputs.github-repo }}" ]; then
-          REPO_NAME="${{ inputs.github-repo }}"
-        else
-          REPO_NAME="${{ github.repository }}"
-        fi
-        REPO_URL=https://${{ inputs.github-token }}@github.com/${REPO_NAME}.git
-        echo "ACTIONS_GIT_CONFIG_REPO_URL=${REPO_URL}" >> "$GITHUB_ENV"
     - name: Configure git for bot account
       shell: bash -l {0}
+      env:
+        GITHUB_TOKEN_INPUT: ${{ inputs.github-token }}
+        GITHUB_REPO_INPUT: ${{ inputs.github-repo }}
       run: |
         # configure git repository for downstream interaction
-        git remote set-url origin ${ACTIONS_GIT_CONFIG_REPO_URL}
+        REPO_NAME="${GITHUB_REPO_INPUT:-$GITHUB_REPOSITORY}"
+        # Keep the token in .git/config only: exporting it to $GITHUB_ENV would
+        # expose it to every later step in the job, including third-party actions.
+        git remote set-url origin \
+          "https://${GITHUB_TOKEN_INPUT}@github.com/${REPO_NAME}.git"
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
     - name: Authenticate to github CLI
       shell: bash -l {0}
+      env:
+        GITHUB_TOKEN_INPUT: ${{ inputs.github-token }}
       run: |
         # configure github cli for automatic release generation
-        echo "${{ inputs.github-token }}" > token.dat
-        gh auth login --with-token < token.dat
+        printf '%s' "${GITHUB_TOKEN_INPUT}" | gh auth login --with-token
     - name: Fetch git tags
       # Only trigger fetch if setting up for the current repo, not another one
       if: inputs.github-repo == ''
