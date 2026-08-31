@@ -16,11 +16,7 @@ on:
         type: boolean
         default: false
       min-age-days:
-        description: >-
-          Grace period: only delete a non-tip release once it's at least this many days
-          old, so a WIP tarball that's still pinned by another repo's package.json
-          survives a follow-up commit landing on the same branch (which alone makes it
-          "not the tip") until someone notices and repins it.
+        description: Grace period (days) before a non-tip release is eligible for deletion
         required: false
         type: number
         default: 14
@@ -62,11 +58,8 @@ jobs:
               continue
             fi
 
-            # Not a branch tip alone doesn't mean unused: a follow-up commit on the same
-            # branch (with no [release] tag of its own) makes the previous WIP tag
-            # "stale" by that check even while another repo's package.json is still
-            # pinned to its tarball. Give it MIN_AGE_DAYS to get noticed and repinned
-            # before treating it as abandoned.
+            # Not a tip != unused: another repo may still be pinned to this tarball.
+            # Grace period gives time to notice and repin before deleting it.
             age_days=$(( (NOW_EPOCH - $(date -u -d "${published_at}" +%s)) / 86400 ))
             if (( age_days < MIN_AGE_DAYS )); then
               echo "Keeping ${tag} (not a tip, ${age_days}d old, grace is ${MIN_AGE_DAYS}d)"
