@@ -14,6 +14,10 @@ inputs:
     description: whether to only create tag and not publish it
     required: true
     default: ''
+  assets:
+    description: optional asset paths to attach to the release, one path per line
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -39,6 +43,16 @@ runs:
       shell: bash -l {0}
       env:
         TAG_NAME: ${{ inputs.tag-name }}
+        RELEASE_ASSETS: ${{ inputs.assets }}
       run: |
           NOTES="Release ${TAG_NAME} created by exabyte-io-bot"
-          gh release create "${TAG_NAME}" --title "v${TAG_NAME}" --notes "${NOTES}"
+          ASSET_PATHS=()
+          # trim whitespace from each asset path
+          while IFS= read -r asset || [[ -n "${asset}" ]]; do
+            asset="${asset#"${asset%%[![:space:]]*}"}"
+            asset="${asset%"${asset##*[![:space:]]}"}"
+            [[ -z "${asset}" ]] && continue
+            ASSET_PATHS+=("${asset}")
+          done <<< "${RELEASE_ASSETS}"
+          gh release create "${TAG_NAME}" --title "v${TAG_NAME}" \
+            --notes "${NOTES}" "${ASSET_PATHS[@]}"
