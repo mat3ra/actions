@@ -210,8 +210,10 @@ jobs:
 ```
 
 - The job itself gates on `contains(github.event.head_commit.message, '[release]')`
-  internally, so pushing a commit with `[release]` in its message is what triggers a
-  publish — no `if:` needed on the caller's job.
+  and on the caller running from a feature branch (`github.ref_type == 'branch'` and
+  `github.ref_name` is not the repository default branch). Pushing a commit with
+  `[release]` in its message on a feature branch is what triggers a publish — no `if:`
+  needed on the caller's job. The same commit on the default branch does not publish.
 - The tag/asset name defaults to `wip-<short-commit-sha>` (e.g. `wip-e8ed741`), so every
   commit gets its own immutable tag/asset URL — no cache/integrity headaches for consumers
   from a URL whose content silently changed underneath the same tag. Re-running the
