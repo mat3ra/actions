@@ -22,12 +22,15 @@ runs:
       id: get-tag
       shell: bash -l {0}
       run: |
-        # This properly sorts multiple identical tags by when they were created
+        # Sorts by creation date, then by version for tags created at the same time (two
+        # release tags on one commit tie on date; name order would rank "2026.10.9-0" above
+        # "2026.10.10-0" and the new tag would collide with an existing one). In git, the
+        # last --sort key is the primary one.
         # Excludes non-release tags (e.g. "wip-<sha>" from js/release-wip), which would
         # otherwise be picked as "latest" and make this step re-derive an already-used
         # release tag, colliding with it.
         RELEASE_TAG_PATTERN='^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$'
-        ALL_TAGS=$(git for-each-ref --sort=creatordate --format='%(refname:short)' refs/tags)
+        ALL_TAGS=$(git for-each-ref --sort=version:refname --sort=creatordate --format='%(refname:short)' refs/tags)
         TAGS=$(echo "${ALL_TAGS}" | grep -E "${RELEASE_TAG_PATTERN}" || true)
         LATEST_TAG=$(echo "${TAGS}" | tail -n 1 | awk -F' ' '{print $NF}')
         if [[ "${{ inputs.create-new-tag }}" != "true" ]]; then
