@@ -20,10 +20,21 @@ runs:
       run: |
         # configure git repository for downstream interaction
         REPO_NAME="${GITHUB_REPO_INPUT:-$GITHUB_REPOSITORY}"
+        # Authenticate with a header, not a token in the remote URL: libcurl 7.81.0-1ubuntu1.30
+        # (ubuntu-22.04 image 20261018) strips credentials from CURLINFO_EFFECTIVE_URL, which
+        # git up to 2.55 reads as a redirect, so it drops them and the fetch fails with
+        # "could not read Username".
         # Keep the token in .git/config only: exporting it to $GITHUB_ENV would
         # expose it to every later step in the job, including third-party actions.
-        git remote set-url origin \
-          "https://${GITHUB_TOKEN_INPUT}@github.com/${REPO_NAME}.git"
+        AUTH_HEADER=$(printf 'x-access-token:%s' "${GITHUB_TOKEN_INPUT}" | base64 | tr -d '\n')
+        echo "::add-mask::${AUTH_HEADER}"
+        git remote set-url origin "https://github.com/${REPO_NAME}.git"
+        # An empty value clears headers set earlier (such as a persisted checkout token),
+        # which would otherwise be sent alongside this one.
+        git config --local --unset-all http.https://github.com/.extraheader || true
+        git config --local --add http.https://github.com/.extraheader ""
+        git config --local --add http.https://github.com/.extraheader \
+          "AUTHORIZATION: basic ${AUTH_HEADER}"
         git config user.name "exabyte-io-bot"
         git config user.email "info@exabyte.io"
     - name: Authenticate to github CLI
