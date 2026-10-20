@@ -3,7 +3,9 @@
 name: Release to Github
 inputs:
   github-token:
-    description: grants access to github repository
+    description: >-
+      grants access to github repository; the built-in GITHUB_TOKEN works when the calling
+      job grants contents write
     required: true
     default: ''
   tag-name:
@@ -16,6 +18,15 @@ inputs:
     default: ''
   assets:
     description: optional asset paths to attach to the release, one path per line
+    required: false
+    default: ''
+  dispatch-workflows:
+    description: >-
+      optional workflows to start on the new tag once the release exists, one per line: a
+      workflow file name, then any `gh workflow run` fields, such as -f publish=true. A
+      release created with the built-in GITHUB_TOKEN fires no release event, so workflows
+      that wait for one never start; this starts them instead. The calling job needs
+      actions write
     required: false
     default: ''
 
@@ -42,6 +53,9 @@ runs:
       if: inputs.skip-publish == ''
       shell: bash -l {0}
       env:
+        # the same token git/config logs gh in with, so a caller that runs git/config
+        # first sees no change; a caller without it needs this
+        GH_TOKEN: ${{ inputs.github-token }}
         TAG_NAME: ${{ inputs.tag-name }}
         RELEASE_ASSETS: ${{ inputs.assets }}
       run: |
@@ -56,3 +70,20 @@ runs:
           done <<< "${RELEASE_ASSETS}"
           gh release create "${TAG_NAME}" --title "v${TAG_NAME}" \
             --notes "${NOTES}" "${ASSET_PATHS[@]}"
+
+    - name: Start workflows on the new tag
+      if: inputs.skip-publish == '' && inputs.dispatch-workflows != ''
+      shell: bash -l {0}
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        TAG_NAME: ${{ inputs.tag-name }}
+        DISPATCH_WORKFLOWS: ${{ inputs.dispatch-workflows }}
+      run: |
+          set -e
+          # each line: a workflow file name, then any `gh workflow run` fields
+          while IFS= read -r line || [[ -n "${line}" ]]; do
+            read -r -a words <<< "${line}"
+            [[ ${#words[@]} -eq 0 ]] && continue
+            gh workflow run "${words[0]}" --repo "${GITHUB_REPOSITORY}" \
+              --ref "${TAG_NAME}" "${words[@]:1}"
+          done <<< "${DISPATCH_WORKFLOWS}"
