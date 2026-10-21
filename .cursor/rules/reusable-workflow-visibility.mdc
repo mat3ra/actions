@@ -1,0 +1,64 @@
+---
+description: >-
+  GitHub blocks public repos from calling reusable workflows (workflow_call) hosted in a
+  private repo, with no way around it via Access settings — required reading before adding
+  or debugging any workflow_call usage of this repo
+globs: ".github/workflows/**"
+alwaysApply: false
+---
+
+# Reusable workflow visibility restriction
+
+**GitHub does not allow a public repository to call a `workflow_call` reusable workflow
+hosted in a private repository — under any circumstances.** This is a hard platform
+restriction, not a configurable policy:
+
+- Settings → Actions → General → **Access** (the "who can call this repo's reusable
+  workflows" setting) only ever extends sharing to **other private/internal repos** in
+  the same org. It has **no effect** on public callers, no matter how it's configured.
+- A composite action (`uses: ./actions/js/foo` after an explicit
+  `actions/checkout` of this repo) is **not** subject to this restriction — it's a plain
+  git checkout + local path reference, unrelated to the reusable-workflow resolution
+  path. This is why the composite-action pattern always worked here even while this repo
+  was private, while `workflow_call` did not.
+
+## Symptom when this bites
+
+A caller workflow with a job like:
+
+```yaml
+jobs:
+  release-wip:
+    uses: mat3ra/actions/.github/workflows/release-wip.yml@main
+```
+
+fails **immediately**, before any job or step runs:
+
+- `gh run list` shows the run completed with `conclusion: failure` and **zero jobs**.
+- `gh run view <id>` prints only "This run likely failed because of a workflow file
+  issue."
+- The actual reason (visible via the run's HTML page, not the REST API) is
+  `error parsing called workflow` / `workflow was not found`.
+- **This failure never appears on the calling PR's checks list** (`gh pr checks` /
+  `statusCheckRollup`) — a workflow that fails at file-resolution time never creates a
+  check-suite, so a PR can look fully green while this is silently failing. Only
+  `gh run list -R <caller-repo> --branch <branch>` (or the repo's Actions tab directly)
+  shows it.
+
+## What actually fixes it
+
+Only two things resolve this, permanently:
+
+1. **Make this repo (`mat3ra/actions`) public** — then any repo can call its reusable
+   workflows, since GitHub's restriction only applies to private repos as the callee.
+2. Revert to the composite-action pattern for the affected action.
+
+Toggling the Access setting, pinning callers to a specific branch/ref, or waiting for a
+PR to merge to `main` do **not** help — all were tried and confirmed to make no
+difference (see mat3ra/actions#43 / #44 and mat3ra/esse#414 history).
+
+## Before adding a new `workflow_call` entry point here
+
+If this repo is public when you read this, ignore the above — it's a non-issue. If it's
+private again for any reason, do not repeat the debugging cycle above: composite actions
+are the only option that works for public callers.
